@@ -28,6 +28,8 @@ Partial Class frmModPrep
         Me.txtInfo = New System.Windows.Forms.TextBox()
         Me.btnExtractBNDs = New System.Windows.Forms.Button()
         Me.btnExtractDCX = New System.Windows.Forms.Button()
+        Me.btnDeleteDCX = New System.Windows.Forms.Button()
+        Me.btnExtractFRPG = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'txtEXEfile
@@ -88,11 +90,33 @@ Partial Class frmModPrep
         Me.btnExtractDCX.Text = "Extract DCXs"
         Me.btnExtractDCX.UseVisualStyleBackColor = True
         '
+        'btnDeleteDCX
+        '
+        Me.btnDeleteDCX.Enabled = False
+        Me.btnDeleteDCX.Location = New System.Drawing.Point(240, 67)
+        Me.btnDeleteDCX.Name = "btnDeleteDCX"
+        Me.btnDeleteDCX.Size = New System.Drawing.Size(80, 23)
+        Me.btnDeleteDCX.TabIndex = 35
+        Me.btnDeleteDCX.Text = "Delete DCXs"
+        Me.btnDeleteDCX.UseVisualStyleBackColor = True
+        '
+        'btnExtractFRPG
+        '
+        Me.btnExtractFRPG.Enabled = False
+        Me.btnExtractFRPG.Location = New System.Drawing.Point(326, 38)
+        Me.btnExtractFRPG.Name = "btnExtractFRPG"
+        Me.btnExtractFRPG.Size = New System.Drawing.Size(80, 23)
+        Me.btnExtractFRPG.TabIndex = 36
+        Me.btnExtractFRPG.Text = "Extract FRPG"
+        Me.btnExtractFRPG.UseVisualStyleBackColor = True
+        '
         'frmModPrep
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(832, 356)
+        Me.Controls.Add(Me.btnExtractFRPG)
+        Me.Controls.Add(Me.btnDeleteDCX)
         Me.Controls.Add(Me.btnExtractDCX)
         Me.Controls.Add(Me.btnExtractBNDs)
         Me.Controls.Add(Me.txtInfo)
@@ -112,4 +136,6 @@ Partial Class frmModPrep
     Friend WithEvents txtInfo As TextBox
     Friend WithEvents btnExtractBNDs As Button
     Friend WithEvents btnExtractDCX As Button
+    Friend WithEvents btnDeleteDCX As Button
+    Friend WithEvents btnExtractFRPG As Button
 End Class

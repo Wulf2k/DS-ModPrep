@@ -175,6 +175,8 @@ Public Class frmModPrep
         btnModify.Enabled = True
         btnExtractBNDs.Enabled = True
         btnExtractDCX.Enabled = True
+        btnDeleteDCX.Enabled = True
+        btnExtractFRPG.Enabled = True
 
         dataPath = Microsoft.VisualBasic.Left(txtEXEfile.Text, InStrRev(txtEXEfile.Text, "\"))
 
@@ -188,11 +190,15 @@ Public Class frmModPrep
                 btnModify.Enabled = False
                 btnExtractBNDs.Enabled = False
                 btnExtractDCX.Enabled = False
+                btnDeleteDCX.Enabled = False
+                btnExtractFRPG.Enabled = False
             Case Else
                 EXEver = "unknown"
                 btnModify.Enabled = False
                 btnExtractBNDs.Enabled = False
                 btnExtractDCX.Enabled = False
+                btnDeleteDCX.Enabled = False
+                btnExtractFRPG.Enabled = False
         End Select
 
         txtInfo.Text = txtInfo.Text & "EXE type: " & EXEver & Environment.NewLine
@@ -202,11 +208,92 @@ Public Class frmModPrep
         e.Effect = DragDropEffects.Copy
     End Sub
 
+    Private Sub ExtractBND3(ByRef filename As String)
+        Dim BNDstream As New IO.FileStream(filename, IO.FileMode.Open)
+
+        Dim BNDoffset As Integer = 0
+
+        Dim currFileSize As UInteger = 0
+        Dim currFileOffset As UInteger = 0
+        Dim currFileID As UInteger = 0
+        Dim currFileNameOffset As UInteger = 0
+        Dim currFileBytes() As Byte = {}
+        Dim currFileName As String = ""
+        Dim currFilePath As String = ""
+
+        bigEndian = False
+
+        Dim flags As UInteger = 0
+        Dim numfiles As UInteger = 0
+        Dim namesEndLoc As UInteger = 0
+
+
+
+        flags = UInt32FromStream(BNDstream, &HC)
+
+        numfiles = UInt32FromStream(BNDstream, &H10)
+        namesEndLoc = UInt32FromStream(BNDstream, &H14)
+
+        If numfiles > 0 Then
+            Select Case flags
+                Case &H70
+                    For i As UInteger = 0 To numfiles - 1
+                        currFileSize = UInt32FromStream(BNDstream, &H24 + i * &H14)
+                        currFileOffset = UInt32FromStream(BNDstream, &H28 + i * &H14)
+                        currFileID = UInt32FromStream(BNDstream, &H2C + i * &H14)
+                        currFileNameOffset = UInt32FromStream(BNDstream, &H30 + i * &H14)
+                        currFileName = ASCIIStrFromStream(BNDstream, currFileNameOffset)
+
+                        currFileName = "C:\" & Microsoft.VisualBasic.Right(currFileName, currFileName.Length - &H3)
+                        currFilePath = Microsoft.VisualBasic.Left(currFileName, InStrRev(currFileName, "\"))
+
+                        If (Not System.IO.Directory.Exists(currFilePath)) Then
+                            System.IO.Directory.CreateDirectory(currFilePath)
+                        End If
+
+                        ReDim currFileBytes(currFileSize - 1)
+
+                        BNDstream.Position = currFileOffset
+                        For k = 0 To currFileSize - 1
+                            currFileBytes(k) = BNDstream.ReadByte
+                        Next
+
+                        File.WriteAllBytes(currFileName, currFileBytes)
+                    Next
+
+                Case &H74, &H54
+                    For i As UInteger = 0 To numfiles - 1
+                        currFileSize = UInt32FromStream(BNDstream, &H24 + i * &H18)
+                        currFileOffset = UInt32FromStream(BNDstream, &H28 + i * &H18)
+                        currFileID = UInt32FromStream(BNDstream, &H2C + i * &H18)
+                        currFileNameOffset = UInt32FromStream(BNDstream, &H30 + i * &H18)
+                        currFileName = ASCIIStrFromStream(BNDstream, currFileNameOffset)
+
+                        currFileName = "C:\" & Microsoft.VisualBasic.Right(currFileName, currFileName.Length - &H3)
+                        currFilePath = Microsoft.VisualBasic.Left(currFileName, InStrRev(currFileName, "\"))
+
+                        If (Not System.IO.Directory.Exists(currFilePath)) Then
+                            System.IO.Directory.CreateDirectory(currFilePath)
+                        End If
+
+                        ReDim currFileBytes(currFileSize - 1)
+
+                        BNDstream.Position = currFileOffset
+                        For k = 0 To currFileSize - 1
+                            currFileBytes(k) = BNDstream.ReadByte
+                        Next
+
+                        File.WriteAllBytes(currFileName, currFileBytes)
+                    Next
+            End Select
+        End If
+
+    End Sub
     Private Sub ExtractBHD5(ByRef filename As String)
         Dim BHDstream As New IO.FileStream(dataPath & filename & ".bhd5", IO.FileMode.Open)
         Dim BDTstream As New IO.FileStream(dataPath & filename & ".bdt", IO.FileMode.Open)
 
-        Dim BHDoffset As Integer
+        Dim BHDoffset As Integer = 0
 
         Dim numFiles As Integer = 0
 
@@ -412,6 +499,41 @@ Public Class frmModPrep
         Next
 
         txtInfo.Text = txtInfo.Text & "DCXs extracted" & Environment.NewLine
+    End Sub
+    Private Sub btnDeleteDCX_Click(sender As Object, e As EventArgs) Handles btnDeleteDCX.Click
+        Dim dcxlist() As String = Directory.GetFiles(dataPath, "*.dcx", SearchOption.AllDirectories)
+
+        For Each dcx In dcxlist
+            File.Delete(dcx)
+        Next
+
+        txtInfo.Text = txtInfo.Text & "DCXs deleted" & Environment.NewLine
+    End Sub
+
+    Private Sub btnExtractFRPG_Click(sender As Object, e As EventArgs) Handles btnExtractFRPG.Click
+
+        'excluded for now:
+        'remobnd
+        'chrtpfbdt
+        'tpf
+        'tpfBHD
+        'hkxbhd
+        'shaderbnd
+
+        Dim list() As String
+        list = {"*.anibnd", "*.chrbnd", "*.chresdbnd", "*.fgbnd", "*.nvmbnd", "partsbnd", "*.luabnd", "*.talkesdbnd",
+            "*.msgbnd", "*,mtdbnd", "*.objbnd", "*.rumblebnd", "*.parambnd", "*.paramdefbnd", "*.ffxbnd"}
+
+        For Each bndtype In list
+            Dim bndlist() As String = Directory.GetFiles(dataPath, bndtype, SearchOption.AllDirectories)
+
+            For Each bnd In bndlist
+                ExtractBND3(bnd)
+            Next
+        Next
+
+
+        txtInfo.Text = txtInfo.Text & "FRPG populated" & Environment.NewLine
     End Sub
 End Class
 
