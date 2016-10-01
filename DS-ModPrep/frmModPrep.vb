@@ -144,6 +144,23 @@ Public Class frmModPrep
         WriteBytes(EXEstream, &HD67F04, byt)
         WriteBytes(EXEstream, &HD71ED0, byt)
 
+
+        'HKXBND:
+        byt = System.Text.Encoding.Unicode.GetBytes("maphkx:")
+        WriteBytes(EXEstream, &HD941F0, byt)
+        WriteBytes(EXEstream, &HD94214, byt)
+
+
+        'TPFBND:
+        byt = System.Text.Encoding.Unicode.GetBytes("maptpf:")
+        WriteBytes(EXEstream, &HD6489C, byt)
+        WriteBytes(EXEstream, &HD94400, byt)
+
+
+        'Disable DCX loading
+        WriteBytes(EXEstream, &H8FB726, {&HEB, &H12})
+
+
     End Sub
     Private Sub btnModify_Click(sender As Object, e As EventArgs) Handles btnModify.Click
         CreateFolders()
