@@ -194,6 +194,7 @@ Public Class frmModPrep
         btnExtractDCX.Enabled = True
         btnDeleteDCX.Enabled = True
         btnExtractFRPG.Enabled = True
+        btnExtractBHDs.Enabled = true
 
         dataPath = Microsoft.VisualBasic.Left(txtEXEfile.Text, InStrRev(txtEXEfile.Text, "\"))
 
@@ -209,6 +210,7 @@ Public Class frmModPrep
                 btnExtractDCX.Enabled = False
                 btnDeleteDCX.Enabled = False
                 btnExtractFRPG.Enabled = False
+                btnExtractBHDs.Enabled = false
             Case Else
                 EXEver = "unknown"
                 btnModify.Enabled = False
@@ -216,6 +218,7 @@ Public Class frmModPrep
                 btnExtractDCX.Enabled = False
                 btnDeleteDCX.Enabled = False
                 btnExtractFRPG.Enabled = False
+                btnExtractBHDs.Enabled = false
         End Select
 
         txtInfo.Text = txtInfo.Text & "EXE type: " & EXEver & Environment.NewLine
@@ -306,6 +309,12 @@ Public Class frmModPrep
         End If
 
     End Sub
+    Private sub ExtractBHF3(Byref filename As String)
+        Dim mappath = dataPath & "map\"
+
+        
+
+    End sub
     Private Sub ExtractBHD5(ByRef filename As String)
         Dim BHDstream As New IO.FileStream(dataPath & filename & ".bhd5", IO.FileMode.Open)
         Dim BDTstream As New IO.FileStream(dataPath & filename & ".bdt", IO.FileMode.Open)
@@ -376,6 +385,9 @@ Public Class frmModPrep
         Next
         BDTstream.Dispose()
         BHDstream.Dispose()
+
+        File.Move(dataPath & filename & ".bhd5", dataPath & filename & ".bhd5.bak")
+        File.Move(dataPath & filename & ".bdt", dataPath & filename & ".bdt.bak")
     End Sub
     Private Sub ExtractDFLT(ByRef filename As String)
         Dim DCXstream As New IO.FileStream(filename, IO.FileMode.Open)
@@ -404,16 +416,16 @@ Public Class frmModPrep
 
     Private Sub btnExtractBNDs_Click(sender As Object, e As EventArgs) Handles btnExtractBNDs.Click
         ExtractBHD5("dvdbnd0")
-        txtInfo.Text = txtInfo.Text & "DVDBND0 extracted." & Environment.NewLine
+        txtInfo.Text = txtInfo.Text & "DVDBND0 extracted & renamed." & Environment.NewLine
 
         ExtractBHD5("dvdbnd1")
-        txtInfo.Text = txtInfo.Text & "DVDBND1 extracted." & Environment.NewLine
+        txtInfo.Text = txtInfo.Text & "DVDBND1 extracted & renamed." & Environment.NewLine
 
         ExtractBHD5("dvdbnd2")
-        txtInfo.Text = txtInfo.Text & "DVDBND2 extracted." & Environment.NewLine
+        txtInfo.Text = txtInfo.Text & "DVDBND2 extracted & renamed." & Environment.NewLine
 
         ExtractBHD5("dvdbnd3")
-        txtInfo.Text = txtInfo.Text & "DVDBND3 extracted." & Environment.NewLine
+        txtInfo.Text = txtInfo.Text & "DVDBND3 extracted & renamed." & Environment.NewLine
 
     End Sub
     Private Function HashFileName(filename As String) As UInteger
@@ -551,6 +563,17 @@ Public Class frmModPrep
 
 
         txtInfo.Text = txtInfo.Text & "FRPG populated" & Environment.NewLine
+    End Sub
+
+    Private Sub btnExtractBHDs_Click(sender As Object, e As EventArgs) Handles btnExtractBHDs.Click
+        'don't forget chrbnds contain tpf headers
+
+             Dim bndlist() As String = Directory.GetFiles(dataPath, "*.tpfbhd", SearchOption.AllDirectories)
+
+            For Each bnd In bndlist
+                ExtractBHF3(bnd)
+            Next
+
     End Sub
 End Class
 
