@@ -148,7 +148,7 @@ Public Class frmModPrep
         'HKXBND:
         byt = System.Text.Encoding.Unicode.GetBytes("maphkx:")
         WriteBytes(EXEstream, &HD941F0, byt)
-        WriteBytes(EXEstream, &HD94214, byt)
+        WriteBytes(EXEstream, &HD94218, byt)
 
 
         'TPFBND:
