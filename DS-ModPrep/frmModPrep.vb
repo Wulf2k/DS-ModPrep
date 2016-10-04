@@ -760,7 +760,7 @@ Public Class frmModPrep
 #End If
 
         If loadBdtIntoMemory Then
-            Dim dlgRes = MessageBox.Show("Enough free RAM is available to store each large DVDBND. Would you like to load them directly into memory in order to greatly boost extraction speed? (Be sure to close any high memory usage applications if you have <= 4GB of RAM.)" + Environment.NewLine + Environment.NewLine + "Note: This feature is only available on the 64-bit version of DS-ModPrep.", "Load BNDs into RAM?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information)
+            Dim dlgRes = MessageBox.Show("Enough free RAM is available to store each large DVDBND. Would you like to load them directly into memory in order to slightly boost extraction speed? (Be sure to close any high memory usage applications if you have <= 8GB of RAM.)" + Environment.NewLine + Environment.NewLine + "Note: This feature is only available on the 64-bit version of DS-ModPrep.", "Load BNDs into RAM?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information)
 
             If dlgRes = DialogResult.No Then
                 loadBdtIntoMemory = False
