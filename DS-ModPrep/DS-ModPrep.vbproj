@@ -125,6 +125,7 @@
     <Prefer32Bit>true</Prefer32Bit>
     <DefineConstants>IS_64_BIT</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup />
   <PropertyGroup>
     <ApplicationManifest>My Project\app.manifest</ApplicationManifest>
   </PropertyGroup>

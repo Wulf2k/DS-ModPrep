@@ -1207,8 +1207,8 @@ Public Class frmModPrep
                     Return
                 End If
 
-                If prog.Value > prog.Maximum Then
-                    prog.Value = prog.Maximum
+                If newValue > prog.Maximum Then
+                    newValue = prog.Maximum
                 End If
 
                 If prog.InvokeRequired Then
