@@ -1,0 +1,1002 @@
+﻿Imports System.IO
+Imports System.IO.Compression
+
+Public Class frmModPrep
+    Public EXEver As String = "unknown"
+    Public dataPath As String = ""
+    Public bigEndian = False
+    Dim oldProgress As Integer = 0
+    Public Const SteamGames_Main = "Program Files (x86)\Steam\steamapps\common"
+    Public Const SteamGames_Library = "SteamLibrary\steamapps\common"
+    Public Const RelDarkSoulsDir = "Dark Souls Prepare to Die Edition\DATA"
+
+    Private Function GetAllSteamInstallLocations() As String()
+
+    End Function
+
+    Private Sub SearchForDarkSouls()
+        Dim allDrives() As DriveInfo = DriveInfo.GetDrives()
+        Dim couldBeInMainInstallDir = False
+        For Each d In allDrives
+            Dim potentialMainSteamInstall = Path.Combine(d.Name, SteamGames_Main)
+            If couldBeInMainInstallDir And Directory.Exists(potentialMainSteamInstall) Then
+                'This is likely the main steam installation folder.
+                If Directory.Exists Then
+                End If
+        Next
+    End Sub
+
+    Public Sub New()
+        InitializeComponent()
+
+        SetLoading(False)
+    End Sub
+
+    Private Async Function WriteBytesAsync(fs As FileStream, ByVal loc As Integer, ByVal byt() As Byte) As Task
+        fs.Position = loc
+        Await fs.WriteAsync(byt, 0, byt.Length)
+    End Function
+
+    Private Async Function CreateFoldersAsync() As Task
+        Await Task.Run(
+            Sub()
+                If Not Directory.Exists("C:\FRPG") Then
+                    Directory.CreateDirectory("C:\FRPG")
+                    Directory.CreateDirectory("C:\FRPG\data")
+                    Directory.CreateDirectory("C:\FRPG\data\CAPTURE")
+                    Directory.CreateDirectory("C:\FRPG\data\CAPTURE\breakobj")
+                    Directory.CreateDirectory("C:\FRPG\data\CAPTURE\dbgreport")
+                    Directory.CreateDirectory("C:\FRPG\data\CAPTURE\EnvLightMap")
+                    Directory.CreateDirectory("C:\FRPG\data\CAPTURE\event")
+                    Directory.CreateDirectory("C:\FRPG\data\CAPTURE\mapstudio")
+                    Directory.CreateDirectory("C:\FRPG\data\CAPTURE\param")
+                    Directory.CreateDirectory("C:\FRPG\data\CAPTURE\Replay")
+                    Directory.CreateDirectory("C:\FRPG\data\CAPTURE\screenshot")
+                    Directory.CreateDirectory("C:\FRPG\data\CAPTURE\win32savedata")
+                    Directory.CreateDirectory("C:\FRPG\data\INTERROOT_win32")
+                    Directory.CreateDirectory("C:\FRPG\data\INTERROOT_win32\script")
+                    Directory.CreateDirectory("C:\FRPG\data\INTERROOT_win32\script\ai")
+                    Directory.CreateDirectory("C:\FRPG\data\INTERROOT_win32\script\ai\out")
+                    Directory.CreateDirectory("C:\FRPG\data\INTERROOT_win32\script\talk")
+                    Directory.CreateDirectory("C:\FRPG\data\INTERROOT_win32\sfx")
+                    Directory.CreateDirectory("C:\FRPG\data\INTERROOT_win32\sfx\effects")
+                    Directory.CreateDirectory("C:\FRPG\data\INTERROOT_win32\sfx\lua")
+                    Directory.CreateDirectory("C:\FRPG\data\INTERROOT_win32\sfx\model")
+                    Directory.CreateDirectory("C:\FRPG\data\INTERROOT_win32\sfx\tex")
+                    Directory.CreateDirectory("C:\FRPG\data\INTERROOT_win32\sfx\debug")
+                    Directory.CreateDirectory(dataPath & "\testdata")
+                    AddTextLine("Created c:\FRPG and game:/testdata folders")
+                End If
+            End Sub)
+    End Function
+    Private Async Function modReleaseEXEAsync(EXEstream As FileStream) As Task
+        Dim byt() As Byte
+
+        Await Task.Run(
+            Sub()
+                If Not File.Exists(txtEXEfile.Text & ".release.bak") Then
+                    File.Copy(txtEXEfile.Text, txtEXEfile.Text & ".release.bak")
+                    AddTextLine("Created " & txtEXEfile.Text & ".release.bak")
+                Else
+                    AddTextLine(txtEXEfile.Text & ".release.bak already exists.")
+                End If
+            End Sub)
+
+
+        byt = System.Text.Encoding.Unicode.GetBytes("dvdroot:")
+
+        'DVDBND0:
+        Await WriteBytesAsync(EXEstream, &HD65EA4, byt)
+        Await WriteBytesAsync(EXEstream, &HD660F8, byt)
+        Await WriteBytesAsync(EXEstream, &HD66180, byt)
+        Await WriteBytesAsync(EXEstream, &HD6627C, byt)
+        Await WriteBytesAsync(EXEstream, &HD662C8, byt)
+        Await WriteBytesAsync(EXEstream, &HD66318, byt)
+        Await WriteBytesAsync(EXEstream, &HD66C90, byt)
+
+        'Progress'''''''''''''''''''''''''''''''''''''''''
+        SetProgress(7)
+        ''''''''''''''''''''''''''''''''''''''''''''''''''
+
+        'DVDBND1:
+        Await WriteBytesAsync(EXEstream, &HD57F14, byt)
+        Await WriteBytesAsync(EXEstream, &HD65DAC, byt)
+        Await WriteBytesAsync(EXEstream, &HD65DF0, byt)
+        Await WriteBytesAsync(EXEstream, &HD65FFC, byt)
+        Await WriteBytesAsync(EXEstream, &HD6613C, byt)
+        Await WriteBytesAsync(EXEstream, &HD6636C, byt)
+        Await WriteBytesAsync(EXEstream, &HD66484, byt)
+        Await WriteBytesAsync(EXEstream, &HD665F0, byt)
+        Await WriteBytesAsync(EXEstream, &HD666E4, byt)
+
+        'Progress'''''''''''''''''''''''''''''''''''''''''
+        SetProgress(16)
+        ''''''''''''''''''''''''''''''''''''''''''''''''''
+
+        'DVDBND2:
+        Await WriteBytesAsync(EXEstream, &HD66734, byt)
+        Await WriteBytesAsync(EXEstream, &HD667C4, byt)
+        Await WriteBytesAsync(EXEstream, &HD66EAC, byt)
+
+        'Progress'''''''''''''''''''''''''''''''''''''''''
+        SetProgress(19)
+        ''''''''''''''''''''''''''''''''''''''''''''''''''
+
+        'DVDBND3:
+        Await WriteBytesAsync(EXEstream, &HD65E34, byt)
+        Await WriteBytesAsync(EXEstream, &HD663B0, byt)
+        Await WriteBytesAsync(EXEstream, &HD66434, byt)
+
+        'Progress'''''''''''''''''''''''''''''''''''''''''
+        SetProgress(22)
+        ''''''''''''''''''''''''''''''''''''''''''''''''''
+
+        byt = System.Text.Encoding.Unicode.GetBytes("C:")
+
+        'N:
+        Await WriteBytesAsync(EXEstream, &HD65BB4, byt)
+        Await WriteBytesAsync(EXEstream, &HD65C3C, byt)
+        Await WriteBytesAsync(EXEstream, &HD6FBA0, byt)
+
+        'Progress'''''''''''''''''''''''''''''''''''''''''
+        SetProgress(25)
+        ''''''''''''''''''''''''''''''''''''''''''''''''''
+    End Function
+    Private Async Function modDebugEXEAsync(EXEstream As FileStream) As Task
+        Dim byt() As Byte
+
+        Await Task.Run(
+            Sub()
+                If Not File.Exists(txtEXEfile.Text & ".debug.bak") Then
+                    File.Copy(txtEXEfile.Text, txtEXEfile.Text & ".debug.bak")
+                    AddTextLine("Created " & txtEXEfile.Text & ".debug.bak")
+                Else
+                    AddTextLine(txtEXEfile.Text & ".debug.bak already exists.")
+                End If
+            End Sub)
+
+        byt = System.Text.Encoding.Unicode.GetBytes("dvdroot:")
+
+        'DVDBND0:
+        Await WriteBytesAsync(EXEstream, &HD6816C, byt)
+        Await WriteBytesAsync(EXEstream, &HD683C0, byt)
+        Await WriteBytesAsync(EXEstream, &HD68448, byt)
+        Await WriteBytesAsync(EXEstream, &HD68544, byt)
+        Await WriteBytesAsync(EXEstream, &HD68590, byt)
+        Await WriteBytesAsync(EXEstream, &HD685E0, byt)
+        Await WriteBytesAsync(EXEstream, &HD68F58, byt)
+
+        'Progress'''''''''''''''''''''''''''''''''''''''''
+        SetProgress(7)
+        ''''''''''''''''''''''''''''''''''''''''''''''''''
+
+        'DVDBND1:
+        Await WriteBytesAsync(EXEstream, &HD5C2D4, byt)
+        Await WriteBytesAsync(EXEstream, &HD68074, byt)
+        Await WriteBytesAsync(EXEstream, &HD680BC, byt)
+        Await WriteBytesAsync(EXEstream, &HD682C4, byt)
+        Await WriteBytesAsync(EXEstream, &HD68404, byt)
+        Await WriteBytesAsync(EXEstream, &HD68634, byt)
+        Await WriteBytesAsync(EXEstream, &HD6874C, byt)
+        Await WriteBytesAsync(EXEstream, &HD688B8, byt)
+        Await WriteBytesAsync(EXEstream, &HD689AC, byt)
+
+        'Progress'''''''''''''''''''''''''''''''''''''''''
+        SetProgress(16)
+        ''''''''''''''''''''''''''''''''''''''''''''''''''
+
+        'DVDBND2:
+        Await WriteBytesAsync(EXEstream, &HD689FC, byt)
+        Await WriteBytesAsync(EXEstream, &HD68A8C, byt)
+        Await WriteBytesAsync(EXEstream, &HD69174, byt)
+
+        'Progress'''''''''''''''''''''''''''''''''''''''''
+        SetProgress(19)
+        ''''''''''''''''''''''''''''''''''''''''''''''''''
+
+        'DVDBND3:
+        Await WriteBytesAsync(EXEstream, &HD680FC, byt)
+        Await WriteBytesAsync(EXEstream, &HD68678, byt)
+        Await WriteBytesAsync(EXEstream, &HD686FC, byt)
+
+        'Progress'''''''''''''''''''''''''''''''''''''''''
+        SetProgress(23)
+        ''''''''''''''''''''''''''''''''''''''''''''''''''
+
+        byt = System.Text.Encoding.Unicode.GetBytes("C:")
+
+        'N:
+        Await WriteBytesAsync(EXEstream, &HD67E7C, byt)
+        Await WriteBytesAsync(EXEstream, &HD67F04, byt)
+        Await WriteBytesAsync(EXEstream, &HD71ED0, byt)
+
+        'Progress'''''''''''''''''''''''''''''''''''''''''
+        SetProgress(26)
+        ''''''''''''''''''''''''''''''''''''''''''''''''''
+
+        'HKXBND:
+        byt = System.Text.Encoding.Unicode.GetBytes("maphkx:")
+        Await WriteBytesAsync(EXEstream, &HD941F0, byt)
+        Await WriteBytesAsync(EXEstream, &HD94218, byt)
+
+        'Progress'''''''''''''''''''''''''''''''''''''''''
+        SetProgress(28)
+        ''''''''''''''''''''''''''''''''''''''''''''''''''
+
+        'TPFBND:
+        byt = System.Text.Encoding.Unicode.GetBytes("maptpf:")
+        Await WriteBytesAsync(EXEstream, &HD6489C, byt)
+        Await WriteBytesAsync(EXEstream, &HD94400, byt)
+
+        'Progress'''''''''''''''''''''''''''''''''''''''''
+        SetProgress(30)
+        ''''''''''''''''''''''''''''''''''''''''''''''''''
+
+        'Disable DCX loading
+        Await WriteBytesAsync(EXEstream, &H8FB726, {&HEB, &H12})
+
+        'Progress'''''''''''''''''''''''''''''''''''''''''
+        SetProgress(31)
+        ''''''''''''''''''''''''''''''''''''''''''''''''''
+
+    End Function
+    Private Async Sub btnModify_Click(sender As Object, e As EventArgs) Handles btnModify.Click
+        Await CreateFoldersAsync()
+
+        SetLoading(True)
+        Dim EXEstream = New IO.FileStream(txtEXEfile.Text, IO.FileMode.Open)
+        Select Case EXEver
+            Case "release"
+                AppendCurrentProgressMax(25)
+                AppendOperationProgressMax(25)
+                Await modReleaseEXEAsync(EXEstream)
+            Case "debug"
+                AppendCurrentProgressMax(31)
+                AppendOperationProgressMax(31)
+                Await modDebugEXEAsync(EXEstream)
+        End Select
+        EXEstream.Dispose()
+        SetLoading(False)
+
+        AddTextLine(txtEXEfile.Text & " has successfully been modified.")
+    End Sub
+
+    Private Sub SetLoading(isLoading As Boolean)
+        SetButtonsEnabled(Not isLoading)
+        UseWaitCursor = isLoading
+        lblProgCurFile.Visible = isLoading
+        lblProgOperation.Visible = isLoading
+        If Not isLoading Then
+            progCurFile.Value = 0
+            progCurFile.Maximum = 0
+            progOperation.Value = 0
+            progOperation.Maximum = 0
+        End If
+    End Sub
+
+    Private Sub SetButtonsEnabled(enabled As Boolean)
+
+        btnModify.Enabled = enabled
+        btnExtractBNDs.Enabled = enabled
+        btnExtractDCX.Enabled = enabled
+        btnDeleteDCX.Enabled = enabled
+        btnExtractFRPG.Enabled = enabled
+        btnExtractBHDs.Enabled = enabled
+
+    End Sub
+
+
+    Private Async Sub txt_Drop(sender As Object, e As System.Windows.Forms.DragEventArgs) Handles txtEXEfile.DragDrop
+        Dim file() As String = e.Data.GetData(DataFormats.FileDrop)
+        sender.Text = file(0)
+
+        Dim EXEstream = New IO.FileStream(file(0), IO.FileMode.Open)
+        EXEstream.Position = &H80
+
+        Dim verCheck = New Byte() {0}
+        Await EXEstream.ReadAsync(verCheck, 0, 1)
+
+        'Dis some real async right here
+
+        SetButtonsEnabled(True)
+
+        dataPath = Microsoft.VisualBasic.Left(txtEXEfile.Text, InStrRev(txtEXEfile.Text, "\"))
+
+        Select Case verCheck(0)
+            Case &H54
+                EXEver = "release"
+            Case &HB4
+                EXEver = "debug"
+            Case &HE2
+                EXEver = "beta"
+                SetButtonsEnabled(False)
+            Case Else
+                EXEver = "unknown"
+                SetButtonsEnabled(False)
+        End Select
+
+        AddTextLine("EXE type detected: " & EXEver)
+        EXEstream.Dispose()
+    End Sub
+
+    Private Sub txt_DragEnter(sender As Object, e As System.Windows.Forms.DragEventArgs) Handles txtEXEfile.DragEnter
+        e.Effect = DragDropEffects.Copy
+    End Sub
+
+    Private Async Function WriteBytesToFileAsync(fileName As String, bytes() As Byte) As Task
+        Dim file = New FileStream(fileName, FileMode.OpenOrCreate)
+        Await file.WriteAsync(bytes, 0, bytes.Length)
+        file.Close()
+    End Function
+
+    Private Async Function ExtractBND3Async(filename As String) As Task
+        Dim BNDstream As New IO.FileStream(filename, IO.FileMode.Open)
+
+        ResetProgCur()
+        AppendCurrentProgressMax(BNDstream.Length)
+
+        Dim BNDoffset As Integer = 0
+
+        Dim currFileSize As UInteger = 0
+        Dim currFileOffset As UInteger = 0
+        Dim currFileID As UInteger = 0
+        Dim currFileNameOffset As UInteger = 0
+        Dim currFileBytes() As Byte = {}
+        Dim currFileName As String = ""
+        Dim currFilePath As String = ""
+
+        bigEndian = False
+
+        Dim flags As UInteger = 0
+        Dim numfiles As UInteger = 0
+        Dim namesEndLoc As UInteger = 0
+
+
+
+        flags = Await UInt32FromStreamAsync(BNDstream, &HC)
+
+        numfiles = Await UInt32FromStreamAsync(BNDstream, &H10)
+        namesEndLoc = Await UInt32FromStreamAsync(BNDstream, &H14)
+
+        Await Task.Run(
+            Async Function() As Task
+                If numfiles > 0 Then
+
+                    Dim entryLength As UInteger = 0
+                    Select Case flags
+                        Case &H70
+                            entryLength = &H14
+                        Case &H74, &H54
+                            entryLength = &H18
+                    End Select
+
+                    For i As UInteger = 0 To numfiles - 1
+                        currFileSize = Await UInt32FromStreamAsync(BNDstream, &H24 + i * entryLength)
+                        currFileOffset = Await UInt32FromStreamAsync(BNDstream, &H28 + i * entryLength)
+                        currFileID = Await UInt32FromStreamAsync(BNDstream, &H2C + i * entryLength)
+                        currFileNameOffset = Await UInt32FromStreamAsync(BNDstream, &H30 + i * entryLength)
+                        currFileName = Await ASCIIStrFromStreamAsync(BNDstream, currFileNameOffset)
+
+                        currFileName = "C:\" & Microsoft.VisualBasic.Right(currFileName, currFileName.Length - &H3)
+                        currFilePath = Microsoft.VisualBasic.Left(currFileName, InStrRev(currFileName, "\"))
+
+                        If (Not System.IO.Directory.Exists(currFilePath)) Then
+                            System.IO.Directory.CreateDirectory(currFilePath)
+                        End If
+
+                        ReDim currFileBytes(currFileSize - 1)
+
+                        BNDstream.Position = currFileOffset
+
+                        Await BNDstream.ReadAsync(currFileBytes, 0, currFileSize)
+
+                        Await WriteBytesToFileAsync(currFileName, currFileBytes)
+
+                        'Progress'''''''''''''''''''''''''''''''''''''''''
+                        AppendProgress(currFileSize)
+                        ''''''''''''''''''''''''''''''''''''''''''''''''''
+                    Next
+                End If
+
+                'Progress'''''''''''''''''''''''''''''''''''''''''
+                SetProgress(BNDstream.Length)
+                ''''''''''''''''''''''''''''''''''''''''''''''''''
+            End Function)
+
+    End Function
+
+    Private Async Function ExtractBHF3Async(filename As String) As Task
+        Dim mappath = dataPath & "map\"
+
+        AppendCurrentProgressMax(1)
+
+        'Progress'''''''''''''''''''''''''''''''''''''''''
+        SetProgress(1)
+        ''''''''''''''''''''''''''''''''''''''''''''''''''
+
+        'YEAH WE DID IT
+
+    End Function
+    Private Async Function ExtractBHD5Async(filename As String) As Task
+        Dim BHDstream As New IO.FileStream(dataPath & filename & ".bhd5", IO.FileMode.Open)
+        Dim BDTstream As New IO.FileStream(dataPath & filename & ".bdt", IO.FileMode.Open)
+
+        ResetProgCur()
+        AppendCurrentProgressMax(BDTstream.Length / 100)
+
+        Dim BHDoffset As Integer = 0
+
+        Dim numFiles As Integer = 0
+
+        Dim currFileSize As Integer = 0
+        Dim currFileOffset As Integer = 0
+        Dim currFileID As Integer = 0
+        Dim currFileNameOffset As Integer = 0
+        Dim currFileBytes() As Byte = {}
+        Dim currFileName As String = ""
+        Dim currFilePath As String = ""
+
+        Dim count As Integer = 0
+
+        Dim idx As Integer
+        Dim fileidx() As String = My.Resources.fileidx.Replace(Chr(&HD), "").Split(Chr(&HA))
+        Dim hashidx(fileidx.Length - 1) As UInteger
+
+        For i = 0 To fileidx.Length - 1
+            hashidx(i) = Await HashFileNameAsync(fileidx(i))
+        Next
+
+        bigEndian = False
+
+        numFiles = Await Int32FromStreamAsync(BHDstream, &H10)
+        Await Task.Run(
+            Async Function()
+                For i As Integer = 0 To numFiles - 1
+                    count = Await Int32FromStreamAsync(BHDstream, &H18 + i * &H8)
+                    BHDoffset = Await Int32FromStreamAsync(BHDstream, &H1C + i * 8)
+
+                    For j = 0 To count - 1
+                        currFileSize = Await Int32FromStreamAsync(BHDstream, BHDoffset + &H4)
+                        currFileOffset = Await Int32FromStreamAsync(BHDstream, BHDoffset + &H8)
+
+                        ReDim currFileBytes(currFileSize - 1)
+
+                        BDTstream.Position = currFileOffset
+                        Await BDTstream.ReadAsync(currFileBytes, 0, currFileSize)
+
+                        currFileName = ""
+
+                        If hashidx.Contains(Await UInt32FromStreamAsync(BHDstream, BHDoffset)) Then
+                            idx = Array.IndexOf(hashidx, Await UInt32FromStreamAsync(BHDstream, BHDoffset))
+                            currFileName = fileidx(idx)
+                            currFileName = currFileName.Replace("/", "\")
+                        Else
+                            currFileName = "\NOMATCH\" & Hex(BHDoffset)
+                        End If
+
+                        currFileName = Microsoft.VisualBasic.Left(dataPath, dataPath.Length - 1) & currFileName
+                        currFilePath = Microsoft.VisualBasic.Left(currFileName, InStrRev(currFileName, "\"))
+
+                        If (Not System.IO.Directory.Exists(currFilePath)) Then
+                            System.IO.Directory.CreateDirectory(currFilePath)
+                        End If
+
+                        Await WriteBytesToFileAsync(currFileName, currFileBytes)
+
+                        BHDoffset += &H10
+
+                        'Progress'''''''''''''''''''''''''''''''''''''''''
+                        AppendProgress(currFileSize / 100)
+                        ''''''''''''''''''''''''''''''''''''''''''''''''''
+                    Next
+                Next
+
+                SetProgress(BDTstream.Length / 100)
+
+                BDTstream.Dispose()
+                BHDstream.Dispose()
+
+                Await Task.Delay(500) 'IT MAKES IT MORE CINEMATIC
+
+                'File.Move(dataPath & filename & ".bhd5", dataPath & filename & ".bhd5.bak")
+                'File.Move(dataPath & filename & ".bdt", dataPath & filename & ".bdt.bak")
+            End Function)
+
+    End Function
+    Private Async Function ExtractDFLTAsync(filename As String) As Task
+        Dim DCXstream As New IO.FileStream(filename, IO.FileMode.Open)
+        Dim currFileName As String = ""
+        bigEndian = True
+
+        ResetProgCur()
+        AppendCurrentProgressMax(DCXstream.Length / 1000)
+
+        Dim startOffset As UInteger = (Await Int32FromStreamAsync(DCXstream, &H14)) + &H22
+
+        Dim newbytes(Await Int32FromStreamAsync(DCXstream, &H20) - 1) As Byte
+        Dim decbytes(Await Int32FromStreamAsync(DCXstream, &H1C)) As Byte
+
+
+        'Progress'''''''''''''''''''''''''''''''''''''''''
+        AppendProgress((DCXstream.Length / 1000) / 4)
+        ''''''''''''''''''''''''''''''''''''''''''''''''''
+
+        DCXstream.Position = startOffset
+        Await DCXstream.ReadAsync(newbytes, 0, newbytes.Length - 1) 'TODO: Make sure reading all but 1 byte is intentional
+
+        'Progress'''''''''''''''''''''''''''''''''''''''''
+        AppendProgress((DCXstream.Length / 1000) / 4)
+        ''''''''''''''''''''''''''''''''''''''''''''''''''
+
+        decbytes = Await DecompressAsync(newbytes)
+
+        'Progress'''''''''''''''''''''''''''''''''''''''''
+        AppendProgress((DCXstream.Length / 1000) / 4)
+        ''''''''''''''''''''''''''''''''''''''''''''''''''
+
+        currFileName = Microsoft.VisualBasic.Left(filename, filename.Length - &H4)
+
+        Await WriteBytesToFileAsync(currFileName, decbytes)
+
+        'Progress'''''''''''''''''''''''''''''''''''''''''
+        AppendProgress((DCXstream.Length / 1000) / 4)
+        ''''''''''''''''''''''''''''''''''''''''''''''''''
+
+        DCXstream.Dispose()
+    End Function
+
+    Private Async Sub btnExtractBNDs_Click(sender As Object, e As EventArgs) Handles btnExtractBNDs.Click
+
+        SetLoading(True)
+
+        For i As Integer = 0 To 3
+            'Divided by 100 to prevent integer overflow on dvdbnd0 and/or dvdbnd1
+            'We have to make sure we divide the progress by 100 as well
+            AppendOperationProgressMax(New FileInfo(dataPath & "dvdbnd" & i & ".bdt").Length / 100)
+        Next
+
+        Try
+            Await ExtractBHD5Async("dvdbnd0")
+            AddTextLine("DVDBND0 extracted.")
+
+            Await ExtractBHD5Async("dvdbnd1")
+            AddTextLine("DVDBND1 extracted.")
+
+            Await ExtractBHD5Async("dvdbnd2")
+            AddTextLine("DVDBND2 extracted.")
+
+            Await ExtractBHD5Async("dvdbnd3")
+            AddTextLine("DVDBND3 extracted.")
+        Catch ex As FileNotFoundException
+            MessageBox.Show("Could not find file to extract: """ & ex.FileName & """")
+            SetLoading(False)
+            GC.Collect()
+            Return
+        End Try
+
+
+        SetLoading(False)
+
+        AddTextLine("All DVDBNDs extracted.")
+
+    End Sub
+    Private Async Function HashFileNameAsync(filename As String) As Task(Of UInteger)
+
+        ' This code copied from https://github.com/Burton-Radons/Alexandria
+        ' and altered to run asynchronously.
+
+        If filename Is Nothing Then
+            Return 0
+        End If
+
+        Dim hash As UInteger = 0
+
+        Await Task.Run(
+            Sub()
+                For Each ch As Char In filename
+                    hash = hash * &H25 + Asc(Char.ToLowerInvariant(ch))
+                Next
+            End Sub)
+        Return hash
+    End Function
+    Private Async Function ASCIIStrFromStreamAsync(fs As FileStream, ByVal loc As UInteger) As Task(Of String)
+        Dim byt = New Byte() {0}
+        Dim bytes = New List(Of Byte)
+
+        fs.Position = loc
+
+        Await Task.Run(
+            Async Function()
+                While fs.Position < fs.Length
+                    Await fs.ReadAsync(byt, 0, 1)
+                    If byt(0) > 0 Then
+                        bytes.Add(byt(0))
+                    Else
+                        Exit While
+                    End If
+                End While
+            End Function)
+
+        Return New String(System.Text.Encoding.ASCII.GetChars(bytes.ToArray))
+    End Function
+    Private Async Function Int32FromStreamAsync(fs As FileStream, ByVal loc As Integer) As Task(Of Integer)
+        Dim tmpInt As Integer = 0
+        Dim byt = New Byte() {0, 0, 0, 0}
+
+        fs.Position = loc
+
+        Await fs.ReadAsync(byt, 0, 4)
+
+        Await Task.Run(
+            Sub()
+                If bigEndian Then
+                    For i = 0 To 3
+                        tmpInt += Convert.ToInt32(byt(i)) * &H100 ^ (3 - i)
+                    Next
+                Else
+                    For i = 0 To 3
+                        tmpInt += Convert.ToInt32(byt(i)) * &H100 ^ i
+                    Next
+                End If
+            End Sub)
+
+        Return tmpInt
+    End Function
+    Private Async Function UInt32FromStreamAsync(fs As FileStream, ByVal loc As Integer) As Task(Of UInteger)
+        Dim tmpUInt As UInteger = 0
+        Dim byt = New Byte() {0, 0, 0, 0}
+
+        fs.Position = loc
+
+        Await fs.ReadAsync(byt, 0, 4)
+        Await Task.Run(
+            Sub()
+                If bigEndian Then
+                    For i = 0 To 3
+                        tmpUInt += Convert.ToUInt32(byt(i)) * &H100 ^ (3 - i)
+                    Next
+                Else
+                    For i = 0 To 3
+                        tmpUInt += Convert.ToUInt32(byt(i)) * &H100 ^ i
+                    Next
+                End If
+            End Sub)
+
+        Return tmpUInt
+    End Function
+    Public Async Function DecompressAsync(ByVal cmpBytes() As Byte) As Task(Of Byte())
+        Dim sourceFile As MemoryStream = New MemoryStream(cmpBytes)
+        Dim destFile As MemoryStream = New MemoryStream()
+
+        Await Task.Run(
+            Async Function()
+                Dim compStream As New DeflateStream(sourceFile, CompressionMode.Decompress)
+
+                Await compStream.CopyToAsync(destFile)
+
+                destFile.Close()
+                sourceFile.Close()
+            End Function)
+
+        Return destFile.ToArray
+    End Function
+    Private Async Sub btnExtractDCX_Click(sender As Object, e As EventArgs) Handles btnExtractDCX.Click
+        Dim dcxlist() As String = Directory.GetFiles(dataPath, "*.dcx", SearchOption.AllDirectories)
+
+        SetLoading(True)
+        Await Task.Run(
+            Async Function()
+                For Each dcx In dcxlist
+                    AppendOperationProgressMax(New FileInfo(dcx).Length / 1000)
+                Next
+
+                'No way to tell current progress on decompression
+                For Each dcx In dcxlist
+                    Await ExtractDFLTAsync(dcx)
+                    SetProgress(New FileInfo(dcx).Length / 1000)
+                Next
+            End Function)
+        SetLoading(False)
+
+        AddTextLine("DCXs extracted.")
+    End Sub
+    Private Async Sub btnDeleteDCX_Click(sender As Object, e As EventArgs) Handles btnDeleteDCX.Click
+        Dim dcxlist() As String = Directory.GetFiles(dataPath, "*.dcx", SearchOption.AllDirectories)
+
+        SetLoading(True)
+        Await Task.Run(
+            Sub()
+                For Each dcx In dcxlist
+                    AppendOperationProgressMax(New FileInfo(dcx).Length)
+                Next
+
+                'No way to tell current progress on File.Delete
+                For Each dcx In dcxlist
+                    ResetProgCur()
+                    Dim fileLength = (New FileInfo(dcx).Length)
+                    AppendCurrentProgressMax(fileLength)
+                    File.Delete(dcx)
+                    SetProgress(fileLength)
+                Next
+            End Sub)
+        SetLoading(False)
+        AddTextLine("DCXs deleted.")
+    End Sub
+
+    Private Async Sub btnExtractFRPG_Click(sender As Object, e As EventArgs) Handles btnExtractFRPG.Click
+
+        'excluded for now:
+        'remobnd
+        'chrtpfbdt
+        'tpf
+        'tpfBHD
+        'hkxbhd
+        'shaderbnd
+        SetLoading(True)
+        Await Task.Run(
+            Async Function()
+                Dim list() As String
+                list = {"*.anibnd", "*.chrbnd", "*.chresdbnd", "*.fgbnd", "*.nvmbnd", "partsbnd", "*.luabnd", "*.talkesdbnd",
+                    "*.msgbnd", "*,mtdbnd", "*.objbnd", "*.rumblebnd", "*.parambnd", "*.paramdefbnd", "*.ffxbnd"}
+
+                Dim totalFileList = New List(Of String)
+
+                For Each bndtype In list
+
+                    Dim bndlist() As String = Directory.GetFiles(dataPath, bndtype, SearchOption.AllDirectories)
+
+                    For Each bnd In bndlist
+                        totalFileList.Add(bnd)
+                        AppendOperationProgressMax(New FileInfo(bnd).Length)
+                    Next
+                Next
+
+                For Each bndFileToExtract In totalFileList
+                    Await ExtractBND3Async(bndFileToExtract)
+                Next
+            End Function)
+        SetLoading(False)
+        AddTextLine("C:\FRPG populated.")
+    End Sub
+
+    Private Async Sub btnExtractBHDs_Click(sender As Object, e As EventArgs) Handles btnExtractBHDs.Click
+        'don't forget chrbnds contain tpf headers
+        ResetProgressBars()
+        SetLoading(True)
+        Await Task.Run(
+            Async Function()
+                Dim bndlist() As String = Directory.GetFiles(dataPath, "*.tpfbhd", SearchOption.AllDirectories)
+
+                For Each bnd In bndlist
+                    AppendOperationProgressMax(New FileInfo(bnd).Length)
+                Next
+
+                For Each bnd In bndlist
+                    Await ExtractBHF3Async(bnd)
+                Next
+            End Function)
+        SetLoading(False)
+
+    End Sub
+
+    Private Sub AddTextLine(line As String)
+        txtInfo.BeginInvoke(
+            Sub()
+                txtInfo.AppendText(line & Environment.NewLine)
+            End Sub)
+    End Sub
+
+    Private Sub UpdateProgressLabels()
+
+        lblProgCurFile.BeginInvoke(
+            Sub()
+                If progCurFile.Maximum = 0 Then
+                    lblProgCurFile.Text = "0%"
+                Else
+                    lblProgCurFile.Text = (progCurFile.Value / progCurFile.Maximum).ToString("0%")
+                End If
+            End Sub)
+
+        lblProgOperation.BeginInvoke(
+            Sub()
+                If progOperation.Maximum = 0 Then
+                    lblProgOperation.Text = "0%"
+                Else
+                    lblProgOperation.Text = (progOperation.Value / progOperation.Maximum).ToString("0%")
+                End If
+            End Sub)
+
+    End Sub
+
+    Private Sub ResetProgCur()
+        progCurFile.BeginInvoke(
+            Sub()
+                progCurFile.Value = 0
+                progCurFile.Maximum = 0
+            End Sub)
+
+        UpdateProgressLabels()
+    End Sub
+
+    Private Sub ResetProgOperation()
+        progOperation.BeginInvoke(
+            Sub()
+                progOperation.Value = 0
+                progOperation.Maximum = 0
+            End Sub)
+
+        UpdateProgressLabels()
+    End Sub
+
+    Private Sub ResetProgressBars()
+        ResetProgCur()
+        ResetProgOperation()
+    End Sub
+
+    Private Sub AppendCurrentProgressMax(max As Integer)
+        progCurFile.BeginInvoke(
+            Sub()
+                progCurFile.Maximum += max
+            End Sub)
+
+        UpdateProgressLabels()
+    End Sub
+
+    Private Sub AppendOperationProgressMax(max As Integer)
+        progOperation.BeginInvoke(
+            Sub()
+                progOperation.Maximum += max
+            End Sub)
+
+        UpdateProgressLabels()
+    End Sub
+
+    Private Sub AppendProgress(prog As Integer)
+        Dim increaseOperationProgMax = 0
+
+        progCurFile.BeginInvoke(
+            Sub()
+                progCurFile.Value += prog
+                If progCurFile.Value + prog > progCurFile.Maximum Then
+                    Dim oldMax = progCurFile.Maximum
+                    progCurFile.Maximum = progCurFile.Value + prog
+                    increaseOperationProgMax = progCurFile.Maximum - oldMax
+                End If
+            End Sub)
+
+        progOperation.BeginInvoke(
+            Sub()
+                If increaseOperationProgMax > 0 Then
+                    progOperation.Maximum += increaseOperationProgMax
+                End If
+                progOperation.Value += prog
+            End Sub)
+
+        UpdateProgressLabels()
+    End Sub
+
+    Private Sub SetProgress(prog As Integer)
+
+        progCurFile.BeginInvoke(
+            Sub()
+                progCurFile.Value = prog
+            End Sub)
+
+        If prog > oldProgress Then
+            progOperation.BeginInvoke(
+            Sub()
+                progOperation.Value += (prog - oldProgress)
+            End Sub)
+        End If
+
+        UpdateProgressLabels()
+
+        oldProgress = prog
+
+    End Sub
+
+    Public Function GetRegKey()
+        Return "HKEY_CURRENT_USER\SOFTWARE\Valve\Steam\Apps\" & DarkSoulsAppID
+    End Function
+
+    Private Sub frmModPrep_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+
+    End Sub
+End Class
+
+
+
+'List of Folder Aliases
+'game = system:/
+'debug = game:/
+'capture = N:/FRPG/data/CAPTURE
+'dvdroot
+'interroot = N:/FRPG/data/INTERROOT_win32
+'model = dvdroot:/testdata
+'animation
+'texture
+'material
+'loadlist
+'shader = dvdbnd1:/shader
+'font = dvdbnd1:/font
+'msg = dvdbnd3:/msg
+'msgpatch
+'chr = dvdbnd0:/chr
+'chrtpf
+'chrflver
+'chranibnd
+'chrhkx
+'chresdpatch
+'obj = dvdbnd1:/obj
+'objflver
+'objtpf
+'objhkx
+'objanibnd
+'item = dvdbnd0:/item
+'parts = dvdbnd1:/parts
+'map = dvdbnd0:/map
+'mappatch
+'maptpf
+'mapflver
+'maphkx
+'remo = dvdbnd0:/remo
+'breakobj = 'dvdbnd0:/map/breakobj
+'msb = dvdbnd0:/map/mapstudio
+'mtd = dvdbnd1:/mtd
+'param = dvdbnd3:/param
+'parampatch
+'paramdef = dvdbnd3:/paramdef
+'facegen = dvdbnd1:/facegen
+'movjp = dvdroot:/movjp
+'movna = dvdroot:/movna
+'moveu = dvdroot:/moveu
+'movww = dvdroot:/movww
+'sound = dvdbnd1:/sound
+'sndmap
+'sndchr
+'sndremo
+'fmod
+'other = dvdbnd1:/other
+'luascript = dvdbnd2:/script
+'luascriptpatch
+'talkscript = dvdbnd2:/script/talk
+'talkscriptpatch
+'navimesh
+'dbgscript = interroot:/script
+'dbgai = interroot:/script/ai
+'cap_param = capture:/param
+'cap_breakobj = capture:/breakobj
+'cap_screenshot = capture:/screenshot
+'cap_dbgrep = capture:/dbgreport
+'cap_mapstudio = capture:/mapstudio
+'cap_EnvLightMap = capture:/EnvLightMap
+'replay = capture:/Replay
+'config = dvdroot:/
+'ffx = interroot:/sfx/effects
+'ffxlua = interroot:/sfx/lua
+'ffxbnd = dvdbnd0:/sfx
+'ffxbndpatch
+'ffxmodel = interroot:/sfx/model
+'ffxtex = interroot:/sfx/tex
+'ffxdebug = interroot:/sfx/debug
+'menutexture
+'menutexpatch
+'menuesd
+'event = dvdbnd2:/event
+'eventpatch
+'cap_event = capture:/event
+'fmod_dlc
+'sound_dlc
+'sndmap_dlc
+'sndchr_dlc
+'sndremo_dlc
+'maptpf_dlc
+'map_dlc
+'mtd_dlc
+'remobnd_dlc
+'menu
+'menutex_dlc
+'menuesd_dlc
+'other_dlc
+'chranibnd_dlc
+'breakobj_dlc
