@@ -30,7 +30,7 @@ Public Class frmModPrep
             {ExeType.ReleaseVanilla, "E62519C1DAA8D90AEF82128DA955B509"},
             {ExeType.ReleaseModded, ""}, 'TODO: Find
             {ExeType.DebugVanilla, "6A4A9B3EFF57368B72708A283AFEFC50"},
-            {ExeType.DebugModded, "ACC572BB6782B9C815FB8B01A2F8C51E"},
+            {ExeType.DebugModded, ""},
             {ExeType.Beta, ""} 'TODO: Find
         }
 
@@ -280,7 +280,8 @@ Public Class frmModPrep
 
     Private Async Function ASCIIStrFromStreamAsync(fs As Stream, ByVal loc As UInteger) As Task(Of String)
         Dim byt = New Byte() {0}
-        Dim bytes = New List(Of Byte)
+
+        Dim Str As String = ""
 
         fs.Position = loc
 
@@ -289,14 +290,14 @@ Public Class frmModPrep
                 While fs.Position < fs.Length
                     Await fs.ReadAsync(byt, 0, 1)
                     If byt(0) > 0 Then
-                        bytes.Add(byt(0))
+                        Str = Str + Convert.ToChar(byt(0))
                     Else
                         Exit While
                     End If
                 End While
             End Function)
 
-        Return New String(System.Text.Encoding.ASCII.GetChars(bytes.ToArray))
+        Return str
     End Function
 
     Private Async Sub btnBrowse_Click(sender As Object, e As EventArgs) Handles btnBrowse.Click
@@ -346,19 +347,29 @@ Public Class frmModPrep
 
     Private Async Sub btnExtractBHDs_Click(sender As Object, e As EventArgs) Handles btnExtractBHDs.Click
         'TODO: Finish implementing this and enable button
+        'finish tpfbhd
         'don't forget chrbnds contain tpf headers
+
+
+
+
         Await ResetProgressBarsAsync()
         Await SetLoadingAsync(True)
         Await Task.Run(
             Async Function()
-                Dim bndlist() As String = Directory.GetFiles(dataPath, "*.tpfbhd", SearchOption.AllDirectories)
+                Dim list() as String
+                list = {"*.tpfbhd", "*.chrtpfbhd", "*.hkxbhd"}
+                Dim totalFileList = New List(Of String)
 
-                For Each bnd In bndlist
-                    Await AppendOperationProgressMaxAsync(New FileInfo(bnd).Length)
+                For Each bndtype In list
+                    totalFileList.AddRange(Directory.GetFiles(dataPath, bndtype, SearchOption.AllDirectories))
                 Next
 
-                For Each bnd In bndlist
-                    Await ExtractBHF3Async(bnd)
+                Await AppendOperationProgressMaxAsync(totalFileList.Sum(Function(x) New FileInfo(x).Length))
+
+
+                For Each bhd In totalFileList
+                    Await ExtractBHF3Async(bhd)
                 Next
             End Function)
         Await SetLoadingAsync(False)
@@ -492,15 +503,16 @@ Public Class frmModPrep
                 Await AppendCurrentProgressMaxAsync(25)
                 Await AppendOperationProgressMaxAsync(25)
                 Await modReleaseEXEAsync(EXEstream)
-            Case ExeType.DebugVanilla
+            Case ExeType.DebugVanilla, ExeType.DebugModded, ExeType.ReleaseModded
+                'TODO:  Fix EXE ID
                 Await SetLoadingAsync(True)
                 Await AppendCurrentProgressMaxAsync(31)
                 Await AppendOperationProgressMaxAsync(31)
                 Await modDebugEXEAsync(EXEstream)
-            Case ExeType.ReleaseModded
+            Case "never again" 'ExeType.ReleaseModded
                 MessageBox.Show("The selected Dark Souls executable has already been modded", "Already Modded", MessageBoxButtons.OK, MessageBoxIcon.Information)
                 Return
-            Case ExeType.DebugModded
+            Case "never" 'ExeType.DebugModded
                 MessageBox.Show("The selected Dark Souls executable has already been modded", "Already Modded", MessageBoxButtons.OK, MessageBoxIcon.Information)
                 Return
             Case ExeType.Beta
@@ -531,7 +543,7 @@ Public Class frmModPrep
         Await Task.Run(
             Sub()
                 Dim md5 = GetMd5ChecksumAsync(exe)
-
+                
                 For Each kvp As KeyValuePair(Of ExeType, String) In MD5Hashes
                     If CompareMd5Strings(kvp.Value, MD5Hashes(ExeType.ReleaseVanilla)) Then
                         selectedExeType = ExeType.ReleaseVanilla
@@ -709,21 +721,107 @@ Public Class frmModPrep
     End Function
 
     Private Async Function ExtractBHF3Async(filename As String) As Task
-        Dim mappath = dataPath & "map\"
-
         Await AppendCurrentProgressMaxAsync(1)
 
         'Progress'''''''''''''''''''''''''''''''''''''''''
         Await SetProgressAsync(1)
         ''''''''''''''''''''''''''''''''''''''''''''''''''
+        
+        Dim BHDstream = Await OpenFileIntoMemoryAsync(filename)
+        Dim BDTstream
 
+        Dim outpath As String = datapath
+
+        BDTstream = Await OpenFileIntoMemoryAsync(Microsoft.VisualBasic.Left(filename, filename.Length - 3) & "bdt")
+
+        Await AddTextLineAsync("Extracting " & filename & "...")
+
+        Await ResetProgCurAsync()
+        Await AppendCurrentProgressMaxAsync(BDTstream.Length / 1000)
+
+
+        Select Case Microsoft.VisualBasic.right(filename, filename.Length - InStrRev(FileName, ".")).ToLower
+            Case "tpfbhd", "hkxbhd"
+                outpath = outpath & "map\"
+            Case "chrtpfbhd"
+                outpath = outpath & "chr\"
+        End Select
+
+
+        Dim BHDoffset As Integer = 0
+
+        If Await UInt32FromStreamAsync(BHDstream, &H10) = 0 Then 
+            bigEndian = True
+        Else
+            bigEndian = False
+        End If
+
+        Dim currFileName As String = ""
+        Dim currFileSize As UInteger = 0
+        Dim currFileOffset As UInteger = 0
+        Dim currFileID As UInteger = 0
+        Dim currFileNameOffset As UInteger = 0
+        Dim currFileBytes() As Byte = {}
+
+        Dim count As UInteger = 0
+        Dim flags As UInteger
+        Dim numfiles As UInteger
+
+
+        flags = Await UInt32FromStreamAsync(BHDstream, &HC)
+        numFiles = Await UInt32FromStreamAsync(BHDstream, &H10)
+
+        BHDoffset = &H20
+
+        For i As UInteger = 0 To numFiles - 1
+
+            currFileSize = Await UInt32FromStreamAsync(BHDstream, bhdOffSet + &H4)
+            currFileOffset = Await UInt32FromStreamAsync(BHDstream, bhdOffSet + &H8)
+            currFileID = Await UInt32FromStreamAsync(BHDstream, bhdOffSet + &HC)
+
+            ReDim currFileBytes(currFileSize - 1)
+
+            BDTStream.Position = currFileOffset
+
+            For k = 0 To currFileSize - 1
+                currFileBytes(k) = BDTStream.ReadByte
+            Next
+
+            currFileName = await ASCIIStrFromStreamAsync(BHDstream, Await UInt32FromStreamAsync(BHDstream, bhdOffSet + &H10))
+            currFileName = outpath & currFileName
+
+
+            Await AddTextLineAsync("Extracting " & Microsoft.VisualBasic.right(currFileName, currfilename.Length - InStrRev(currFileName, "\")), true)
+
+            If (Not System.IO.Directory.Exists(Microsoft.VisualBasic.Left(currFileName, InStrRev(currFileName, "\")))) Then
+                System.IO.Directory.CreateDirectory(Microsoft.VisualBasic.Left(currFileName, InStrRev(currFileName, "\")))
+            End If
+
+            Await WriteBytesToFileAsync(currFileName, currFileBytes)
+            BHDoffset += &H18
+
+            'Progress'''''''''''''''''''''''''''''''''''''''''
+            Await AppendProgressAsync(currFileSize / 1000)
+            ''''''''''''''''''''''''''''''''''''''''''''''''''
+
+        Next
+
+        'Progress'''''''''''''''''''''''''''''''''''''''''
+        Await SetProgressAsync(BDTstream.Length / 1000)
+        ''''''''''''''''''''''''''''''''''''''''''''''''''
+        BHDstream.Close
+        BDTstream.Close
+ 
         'YEAH WE DID IT
 
     End Function
 
     Private Async Function ExtractBND3Async(filename As String) As Task
         Dim BNDstream = Await OpenFileIntoMemoryAsync(filename)
+               
+        'Dim BNDstream As FileStream = File.Open(filename, FileMode.Open) 
 
+        
         Await ResetProgCurAsync()
         Await AppendCurrentProgressMaxAsync(BNDstream.Length)
 
@@ -781,6 +879,18 @@ Public Class frmModPrep
                         Await BNDstream.ReadAsync(currFileBytes, 0, currFileSize)
 
                         Await WriteBytesToFileAsync(currFileName, currFileBytes)
+
+                        'supply chrtpfbhds to chr:/
+                        If currFileName.Split(".").Count > 0 Then
+                            If currFileName.Split(".")(1).ToLower  = "chrtpfbhd" Then
+                                Dim newFileName As String
+                                newfilename = dataPath & "chr\" & Microsoft.VisualBasic.right(currFileName, currfilename.Length - InStrRev(currFileName, "\"))
+                                If File.Exists(newFileName) Then
+                                    File.Delete(newFileName)
+                                End If
+                                File.Copy(currFileName, newfilename)
+                            End If
+                        End If
 
                         'Progress'''''''''''''''''''''''''''''''''''''''''
                         Await AppendProgressAsync(currFileSize)

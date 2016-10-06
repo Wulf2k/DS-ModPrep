@@ -43,15 +43,15 @@ Partial Class frmModPrep
         Me.btnDeleteFRPG = New System.Windows.Forms.Button()
         Me.btnDeleteBHDs = New System.Windows.Forms.Button()
         Me.Panel1 = New System.Windows.Forms.Panel()
-        Me.Panel1.SuspendLayout()
-        Me.SuspendLayout()
+        Me.Panel1.SuspendLayout
+        Me.SuspendLayout
         '
         'txtEXEfile
         '
-        Me.txtEXEfile.AllowDrop = True
+        Me.txtEXEfile.AllowDrop = true
         resources.ApplyResources(Me.txtEXEfile, "txtEXEfile")
         Me.txtEXEfile.Name = "txtEXEfile"
-        Me.txtEXEfile.ReadOnly = True
+        Me.txtEXEfile.ReadOnly = true
         '
         'lblGAFile
         '
@@ -62,7 +62,7 @@ Partial Class frmModPrep
         '
         resources.ApplyResources(Me.btnModify, "btnModify")
         Me.btnModify.Name = "btnModify"
-        Me.btnModify.UseVisualStyleBackColor = True
+        Me.btnModify.UseVisualStyleBackColor = true
         '
         'txtInfo
         '
@@ -70,40 +70,40 @@ Partial Class frmModPrep
         Me.txtInfo.BackColor = System.Drawing.SystemColors.ControlLightLight
         Me.txtInfo.BorderStyle = System.Windows.Forms.BorderStyle.None
         Me.txtInfo.Name = "txtInfo"
-        Me.txtInfo.ReadOnly = True
-        Me.txtInfo.ShortcutsEnabled = False
-        Me.txtInfo.ShowSelectionMargin = True
-        Me.txtInfo.TabStop = False
+        Me.txtInfo.ReadOnly = true
+        Me.txtInfo.ShortcutsEnabled = false
+        Me.txtInfo.ShowSelectionMargin = true
+        Me.txtInfo.TabStop = false
         '
         'btnExtractBNDs
         '
         resources.ApplyResources(Me.btnExtractBNDs, "btnExtractBNDs")
         Me.btnExtractBNDs.Name = "btnExtractBNDs"
-        Me.btnExtractBNDs.UseVisualStyleBackColor = True
+        Me.btnExtractBNDs.UseVisualStyleBackColor = true
         '
         'btnExtractDCX
         '
         resources.ApplyResources(Me.btnExtractDCX, "btnExtractDCX")
         Me.btnExtractDCX.Name = "btnExtractDCX"
-        Me.btnExtractDCX.UseVisualStyleBackColor = True
+        Me.btnExtractDCX.UseVisualStyleBackColor = true
         '
         'btnDeleteDCX
         '
         resources.ApplyResources(Me.btnDeleteDCX, "btnDeleteDCX")
         Me.btnDeleteDCX.Name = "btnDeleteDCX"
-        Me.btnDeleteDCX.UseVisualStyleBackColor = True
+        Me.btnDeleteDCX.UseVisualStyleBackColor = true
         '
         'btnExtractFRPG
         '
         resources.ApplyResources(Me.btnExtractFRPG, "btnExtractFRPG")
         Me.btnExtractFRPG.Name = "btnExtractFRPG"
-        Me.btnExtractFRPG.UseVisualStyleBackColor = True
+        Me.btnExtractFRPG.UseVisualStyleBackColor = true
         '
         'btnExtractBHDs
         '
         resources.ApplyResources(Me.btnExtractBHDs, "btnExtractBHDs")
         Me.btnExtractBHDs.Name = "btnExtractBHDs"
-        Me.btnExtractBHDs.UseVisualStyleBackColor = True
+        Me.btnExtractBHDs.UseVisualStyleBackColor = true
         '
         'progCurFile
         '
@@ -147,25 +147,25 @@ Partial Class frmModPrep
         '
         resources.ApplyResources(Me.btnBrowse, "btnBrowse")
         Me.btnBrowse.Name = "btnBrowse"
-        Me.btnBrowse.UseVisualStyleBackColor = True
+        Me.btnBrowse.UseVisualStyleBackColor = true
         '
         'btnDeleteBNDs
         '
         resources.ApplyResources(Me.btnDeleteBNDs, "btnDeleteBNDs")
         Me.btnDeleteBNDs.Name = "btnDeleteBNDs"
-        Me.btnDeleteBNDs.UseVisualStyleBackColor = True
+        Me.btnDeleteBNDs.UseVisualStyleBackColor = true
         '
         'btnDeleteFRPG
         '
         resources.ApplyResources(Me.btnDeleteFRPG, "btnDeleteFRPG")
         Me.btnDeleteFRPG.Name = "btnDeleteFRPG"
-        Me.btnDeleteFRPG.UseVisualStyleBackColor = True
+        Me.btnDeleteFRPG.UseVisualStyleBackColor = true
         '
         'btnDeleteBHDs
         '
         resources.ApplyResources(Me.btnDeleteBHDs, "btnDeleteBHDs")
         Me.btnDeleteBHDs.Name = "btnDeleteBHDs"
-        Me.btnDeleteBHDs.UseVisualStyleBackColor = True
+        Me.btnDeleteBHDs.UseVisualStyleBackColor = true
         '
         'Panel1
         '
@@ -197,10 +197,10 @@ Partial Class frmModPrep
         Me.Controls.Add(Me.btnModify)
         Me.Controls.Add(Me.txtEXEfile)
         Me.Controls.Add(Me.lblGAFile)
-        Me.DoubleBuffered = True
+        Me.DoubleBuffered = true
         Me.Name = "frmModPrep"
-        Me.Panel1.ResumeLayout(False)
-        Me.ResumeLayout(False)
+        Me.Panel1.ResumeLayout(false)
+        Me.ResumeLayout(false)
         Me.PerformLayout
 
 End Sub
