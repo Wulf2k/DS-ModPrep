@@ -216,11 +216,8 @@
   <data name="txtInfo.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
   </data>
-  <data name="txtInfo.ScrollBars" type="System.Windows.Forms.RichTextBoxScrollBars, System.Windows.Forms">
-    <value>None</value>
-  </data>
   <data name="txtInfo.Size" type="System.Drawing.Size, System.Drawing">
-    <value>913, 317</value>
+    <value>909, 313</value>
   </data>
   <data name="txtInfo.TabIndex" type="System.Int32, mscorlib">
     <value>32</value>

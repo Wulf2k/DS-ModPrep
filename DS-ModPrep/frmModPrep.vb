@@ -1119,6 +1119,12 @@ Public Class frmModPrep
         Await WriteBytesAsync(EXEstream, &HD6489C, byt)
         Await WriteBytesAsync(EXEstream, &HD94400, byt)
 
+
+        '%stpf
+        byt = System.Text.Encoding.Unicode.GetBytes("chr")
+        ReDim Preserve byt(8)
+        Await WriteBytesAsync(EXEstream, &HDB1CD8, byt)
+
         'Progress'''''''''''''''''''''''''''''''''''''''''
         Await SetProgressAsync(30)
         ''''''''''''''''''''''''''''''''''''''''''''''''''
