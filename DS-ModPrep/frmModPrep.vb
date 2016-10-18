@@ -845,7 +845,7 @@ Public Class frmModPrep
                         currFileNameOffset = Await UInt32FromStreamAsync(BNDstream, &H30 + i * entryLength)
                         currFileName = Await ASCIIStrFromStreamAsync(BNDstream, currFileNameOffset)
 
-                        currFileName.Replace("N:\", "")
+                        currfilename = currFileName.Replace("N:\", "")
                         currFileName = "C:\" & currFileName
                         currFilePath = Microsoft.VisualBasic.Left(currFileName, InStrRev(currFileName, "\"))
 
