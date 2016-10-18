@@ -19,19 +19,13 @@ Public Class frmModPrep
     Public Shared ReadOnly ExeTypeNames = New Dictionary(Of ExeType, String) From
         {
             {ExeType.ReleaseVanilla, "Dark Souls (Release Ver.)"},
-            {ExeType.ReleaseModded, "Dark Souls (Release Ver.) - Patched by DS-ModPrep"},
-            {ExeType.DebugVanilla, "Dark Souls (Debug Ver.)"},
-            {ExeType.DebugModded, "Dark Souls (Debug Ver.) - Patched by DS-ModPrep"},
-            {ExeType.Beta, "Dark Souls (Steamworks Beta Ver.) - NOT SUPPORTED"}
+            {ExeType.DebugVanilla, "Dark Souls (Debug Ver.)"}
         }
 
     Public Shared ReadOnly MD5Hashes = New Dictionary(Of ExeType, String) From
         {
             {ExeType.ReleaseVanilla, "E62519C1DAA8D90AEF82128DA955B509"},
-            {ExeType.ReleaseModded, ""}, 'TODO: Find
-            {ExeType.DebugVanilla, "6A4A9B3EFF57368B72708A283AFEFC50"},
-            {ExeType.DebugModded, ""},
-            {ExeType.Beta, ""} 'TODO: Find
+            {ExeType.DebugVanilla, "6A4A9B3EFF57368B72708A283AFEFC50"}
         }
 
     Shared bigEndian = False
@@ -500,14 +494,14 @@ Public Class frmModPrep
         Select Case selectedExeType
             Case ExeType.ReleaseVanilla
                 Await SetLoadingAsync(True)
-                Await AppendCurrentProgressMaxAsync(25)
-                Await AppendOperationProgressMaxAsync(25)
+                Await AppendCurrentProgressMaxAsync(31)
+                Await AppendOperationProgressMaxAsync(30)
                 Await modReleaseEXEAsync(EXEstream)
             Case ExeType.DebugVanilla, ExeType.DebugModded, ExeType.ReleaseModded
                 'TODO:  Fix EXE ID
                 Await SetLoadingAsync(True)
-                Await AppendCurrentProgressMaxAsync(31)
-                Await AppendOperationProgressMaxAsync(31)
+                Await AppendCurrentProgressMaxAsync(30)
+                Await AppendOperationProgressMaxAsync(30)
                 Await modDebugEXEAsync(EXEstream)
             Case "never again" 'ExeType.ReleaseModded
                 MessageBox.Show("The selected Dark Souls executable has already been modded", "Already Modded", MessageBoxButtons.OK, MessageBoxIcon.Information)
@@ -525,7 +519,7 @@ Public Class frmModPrep
     End Sub
 
     Private Async Function CheckAndSetFileTxtAsync(file As String, showErrDlg As Boolean) As Task(Of Boolean)
-        If Await CheckDarkSoulsExeVerAsync(file, showErrDlg) Then
+        If CheckDarkSoulsExeVer(file, showErrDlg) Then
             Await SetTextAsync(txtEXEfile, file)
             dataPath = Microsoft.VisualBasic.Left(file, InStrRev(file, "\"))
             Await SetControlsEnabledAsync(True)
@@ -536,41 +530,27 @@ Public Class frmModPrep
         End If
     End Function
 
-    Private Async Function CheckDarkSoulsExeVerAsync(exe As String, showErrDlg As Boolean) As Task(Of Boolean)
+    Private Function CheckDarkSoulsExeVer(exe As String, showErrDlg As Boolean)
 
         Dim validExe = True
 
-        Await Task.Run(
-            Sub()
-                Dim md5 = GetMd5ChecksumAsync(exe)
-                
-                For Each kvp As KeyValuePair(Of ExeType, String) In MD5Hashes
-                    If CompareMd5Strings(kvp.Value, MD5Hashes(ExeType.ReleaseVanilla)) Then
-                        selectedExeType = ExeType.ReleaseVanilla
-                    ElseIf CompareMd5Strings(kvp.Value, MD5Hashes(ExeType.ReleaseModded)) Then
-                        selectedExeType = ExeType.ReleaseModded
-                    ElseIf CompareMd5Strings(kvp.Value, MD5Hashes(ExeType.DebugVanilla)) Then
-                        selectedExeType = ExeType.DebugVanilla
-                    ElseIf CompareMd5Strings(kvp.Value, MD5Hashes(ExeType.DebugModded)) Then
-                        selectedExeType = ExeType.DebugModded
-                    ElseIf CompareMd5Strings(kvp.Value, MD5Hashes(ExeType.Beta)) Then
-                        selectedExeType = ExeType.Beta
+        Dim fs As FileStream
+        fs = File.Open(exe, FileMode.Open)
 
-                        If showErrDlg Then
-                            MessageBox.Show("Patching the Steamworks beta version of Dark Souls is not supported in this version of DS-ModPrep.", "Not Supported", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                        End If
+        Dim byt as Byte
+        
+        fs.Position = &H80
+        byt = fs.ReadByte
+        fs.Close
 
-                        validExe = False
-                    Else
 
-                        If showErrDlg Then
-                            MessageBox.Show("The selected file is not a valid Dark Souls executable.", "Invalid", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                        End If
+        Select Case byt
+            Case &H54
+                selectedExeType = ExeType.ReleaseVanilla
+            Case &HB4
+                selectedExeType = ExeType.DebugVanilla
+        End Select
 
-                        validExe = False
-                    End If
-                Next
-            End Sub)
 
         Return validExe
 
@@ -1092,7 +1072,7 @@ Public Class frmModPrep
         Await WriteBytesAsync(EXEstream, &HD686FC, byt)
 
         'Progress'''''''''''''''''''''''''''''''''''''''''
-        Await SetProgressAsync(23)
+        Await SetProgressAsync(22)
         ''''''''''''''''''''''''''''''''''''''''''''''''''
 
         byt = System.Text.Encoding.Unicode.GetBytes("C:")
@@ -1103,7 +1083,7 @@ Public Class frmModPrep
         Await WriteBytesAsync(EXEstream, &HD71ED0, byt)
 
         'Progress'''''''''''''''''''''''''''''''''''''''''
-        Await SetProgressAsync(26)
+        Await SetProgressAsync(25)
         ''''''''''''''''''''''''''''''''''''''''''''''''''
 
         'HKXBND:
@@ -1112,7 +1092,7 @@ Public Class frmModPrep
         Await WriteBytesAsync(EXEstream, &HD94218, byt)
 
         'Progress'''''''''''''''''''''''''''''''''''''''''
-        Await SetProgressAsync(28)
+        Await SetProgressAsync(27)
         ''''''''''''''''''''''''''''''''''''''''''''''''''
 
         'TPFBND:
@@ -1170,7 +1150,7 @@ Public Class frmModPrep
         'DVDBND1:
         Await WriteBytesAsync(EXEstream, &HD57F14, byt)
         Await WriteBytesAsync(EXEstream, &HD65DAC, byt)
-        Await WriteBytesAsync(EXEstream, &HD65DF0, byt)
+        Await WriteBytesAsync(EXEstream, &HD65DF4, byt)
         Await WriteBytesAsync(EXEstream, &HD65FFC, byt)
         Await WriteBytesAsync(EXEstream, &HD6613C, byt)
         Await WriteBytesAsync(EXEstream, &HD6636C, byt)
@@ -1210,6 +1190,48 @@ Public Class frmModPrep
         'Progress'''''''''''''''''''''''''''''''''''''''''
         Await SetProgressAsync(25)
         ''''''''''''''''''''''''''''''''''''''''''''''''''
+
+        'HKXBND:
+        byt = System.Text.Encoding.Unicode.GetBytes("maphkx:")
+
+        Await WriteBytesAsync(EXEstream, &HD91740, byt)
+        Await WriteBytesAsync(EXEstream, &HD91768, byt)
+
+        'Progress'''''''''''''''''''''''''''''''''''''''''
+        Await SetProgressAsync(27)
+        ''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
+        'TPFBND:
+        byt = System.Text.Encoding.Unicode.GetBytes("maptpf:")
+        Await WriteBytesAsync(EXEstream, &HD625FC, byt)
+        Await WriteBytesAsync(EXEstream, &HD91950, byt)
+
+
+        '%stpf
+        byt = System.Text.Encoding.Unicode.GetBytes("chr")
+        ReDim Preserve byt(8)
+        Await WriteBytesAsync(EXEstream, &HDAEBF8, byt)
+
+        'Progress'''''''''''''''''''''''''''''''''''''''''
+        Await SetProgressAsync(30)
+        ''''''''''''''''''''''''''''''''''''''''''''''''''
+
+        'Disable DCX loading
+        Await WriteBytesAsync(EXEstream, &H8FB816, {&HEB, &H12})
+
+        'Progress'''''''''''''''''''''''''''''''''''''''''
+        Await SetProgressAsync(31)
+        ''''''''''''''''''''''''''''''''''''''''''''''''''
+
+
+
+
+
+
+
+
+
     End Function
 
     Private Async Function OpenFileIntoMemoryAsync(fileName As String) As Task(Of MemoryStream)
