@@ -846,9 +846,12 @@ Public Class frmModPrep
                         currFileName = Await ASCIIStrFromStreamAsync(BNDstream, currFileNameOffset)
 
                         currfilename = currFileName.Replace("N:\", "")
+                        currfilename = currFileName.Replace("n:\", "")
                         currFileName = "C:\" & currFileName
                         currFilePath = Microsoft.VisualBasic.Left(currFileName, InStrRev(currFileName, "\"))
 
+
+                        
                         If (Not System.IO.Directory.Exists(currFilePath)) Then
                             System.IO.Directory.CreateDirectory(currFilePath)
                         End If
