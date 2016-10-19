@@ -1120,6 +1120,90 @@ Public Class frmModPrep
         Await SetProgressAsync(31)
         ''''''''''''''''''''''''''''''''''''''''''''''''''
 
+
+
+
+        'Add Translations
+
+        'FRPG-Net section of Debug Menu
+        byt = System.Text.Encoding.Unicode.GetBytes("Lobby")
+        Await WriteBytesAsync(EXEstream, &HDD9588, byt)
+
+        byt = System.Text.Encoding.Unicode.GetBytes("ConnInfo")
+        ReDim Preserve byt(&H20)
+        Await WriteBytesAsync(EXEstream, &HDD9BEC, byt)
+
+        byt = System.Text.Encoding.Unicode.GetBytes("NodeDB")
+        Await WriteBytesAsync(EXEstream, &HDDA970, byt)
+
+        byt = System.Text.Encoding.Unicode.GetBytes("GhostDB")
+        Await WriteBytesAsync(EXEstream, &HDDAB78, byt)
+
+        byt = System.Text.Encoding.Unicode.GetBytes("Msg DB")
+        Await WriteBytesAsync(EXEstream, &HDDB024, byt)
+
+        byt = System.Text.Encoding.Unicode.GetBytes("Blood")
+        Await WriteBytesAsync(EXEstream, &HDDB2D0, byt)
+
+        byt = System.Text.Encoding.Unicode.GetBytes("Fires")
+        Await WriteBytesAsync(EXEstream, &HDDB438, byt)
+
+        byt = System.Text.Encoding.Unicode.GetBytes("Curse")
+        Await WriteBytesAsync(EXEstream, &HDDB600, byt)
+
+        byt = System.Text.Encoding.Unicode.GetBytes("Event DB")
+        ReDim Preserve byt(&H12)
+        Await WriteBytesAsync(EXEstream, &HDDB940, byt)
+
+        byt = System.Text.Encoding.Unicode.GetBytes("Drift Item DB")
+        Await WriteBytesAsync(EXEstream, &HDDBAD0, byt)
+
+        
+            byt = System.Text.Encoding.Unicode.GetBytes("Vagrant")
+            Await WriteBytesAsync(EXEstream, &HDDBAEC, byt)
+
+            byt = System.Text.Encoding.Unicode.GetBytes("Redist")
+            ReDim Preserve byt(byt.Length+1)
+            Await WriteBytesAsync(EXEstream, &HDDBBBA, byt)
+
+            byt = System.Text.Encoding.Unicode.GetBytes("Interval")
+            ReDim Preserve byt(byt.Length+1)
+            Await WriteBytesAsync(EXEstream, &HDDBBEA, byt)
+
+            byt = System.Text.Encoding.Unicode.GetBytes("MaxRedist")
+            ReDim Preserve byt(byt.Length+1)
+            Await WriteBytesAsync(EXEstream, &HDDBC08, byt)
+
+            byt = System.Text.Encoding.Unicode.GetBytes("Must Arrive")
+            ReDim Preserve byt(byt.Length+1)
+            Await WriteBytesAsync(EXEstream, &HDDBC24, byt)
+
+            byt = System.Text.Encoding.Unicode.GetBytes("EventUnavail")
+            ReDim Preserve byt(byt.Length+1)
+            Await WriteBytesAsync(EXEstream, &HDDBC54, byt)
+        
+            byt = System.Text.Encoding.Unicode.GetBytes("Limit Level")
+            ReDim Preserve byt(byt.Length+1)
+            Await WriteBytesAsync(EXEstream, &HDDBC7C, byt)
+
+            byt = System.Text.Encoding.Unicode.GetBytes("Inhibit")
+            ReDim Preserve byt(byt.Length+1)
+            Await WriteBytesAsync(EXEstream, &HDDBCA6, byt)
+
+            byt = System.Text.Encoding.Unicode.GetBytes("Postpone")
+            ReDim Preserve byt(byt.Length+1)
+            Await WriteBytesAsync(EXEstream, &HDDBCDA, byt)
+
+        byt = System.Text.Encoding.Unicode.GetBytes("Reso DB")
+        Await WriteBytesAsync(EXEstream, &HDDBF00, byt)
+
+        byt = System.Text.Encoding.Unicode.GetBytes("NitoInvit")
+        Await WriteBytesAsync(EXEstream, &HDDE740, byt)
+
+        byt = System.Text.Encoding.Unicode.GetBytes("Coliseum")
+        ReDim Preserve byt(&H12)
+        Await WriteBytesAsync(EXEstream, &HDDEA38, byt)
+
     End Function
 
     Private Async Function modReleaseEXEAsync(EXEstream As FileStream) As Task
