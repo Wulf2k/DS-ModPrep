@@ -12,6 +12,9 @@ Public Enum ExeType
 End Enum
 
 Public Class frmModPrep
+    'TODO:  Create testdata\*.loadlists
+    'bgmtestlist.loadlistlist
+
     Shared WithEvents maxProgSnapTimer As System.Timers.Timer
     Public Const RelDarkSoulsDir = "Dark Souls Prepare to Die Edition\DATA"
     Public Const SteamGames_Library = "SteamLibrary\steamapps\common"
