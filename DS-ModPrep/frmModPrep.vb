@@ -12,9 +12,10 @@ Public Enum ExeType
 End Enum
 
 Public Class frmModPrep
+    'TODO:  Create translated list of MSBs
     'TODO:  Create testdata\*.loadlists
     'bgmtestlist.loadlistlist
-
+    
     Shared WithEvents maxProgSnapTimer As System.Timers.Timer
     Public Const RelDarkSoulsDir = "Dark Souls Prepare to Die Edition\DATA"
     Public Const SteamGames_Library = "SteamLibrary\steamapps\common"
@@ -996,30 +997,6 @@ Public Class frmModPrep
         Return hash
     End Function
 
-    Private Async Function Int32FromStreamAsync(fs As Stream, ByVal loc As Integer) As Task(Of Integer)
-        Dim tmpInt As Integer = 0
-        Dim byt = New Byte() {0, 0, 0, 0}
-
-        fs.Position = loc
-
-        Await fs.ReadAsync(byt, 0, 4)
-
-        Await Task.Run(
-            Sub()
-                If bigEndian Then
-                    For i = 0 To 3
-                        tmpInt += Convert.ToInt32(byt(i)) * &H100 ^ (3 - i)
-                    Next
-                Else
-                    For i = 0 To 3
-                        tmpInt += Convert.ToInt32(byt(i)) * &H100 ^ i
-                    Next
-                End If
-            End Sub)
-
-        Return tmpInt
-    End Function
-
     Private Async Function modDebugEXEAsync(EXEstream As FileStream) As Task
         Dim byt() As Byte
 
@@ -1032,6 +1009,15 @@ Public Class frmModPrep
                     Await AddTextLineAsync(txtEXEfile.Text & ".debug.bak already exists.")
                 End If
             End Function)
+
+
+        
+        'Create "steam_appid.txt", to launch game by double clicking
+        If Not File.Exists(dataPath & "steam_appid.txt") Then
+            File.WriteAllText(dataPath & "steam_appid.txt", "211420")
+            Await AddTextLineAsync("Created steam_appid.txt, can now launch game by running EXE directly.")
+        End If
+
 
         byt = System.Text.Encoding.Unicode.GetBytes("dvdroot:")
 
@@ -1129,83 +1115,34 @@ Public Class frmModPrep
         'Add Translations
 
         'FRPG-Net section of Debug Menu
-        byt = System.Text.Encoding.Unicode.GetBytes("Lobby")
-        Await WriteBytesAsync(EXEstream, &HDD9588, byt)
+        UniStringToStreamAsync(EXEstream, &HDD9588, "Lobby")
+        UniStringToStreamAsync(EXEstream, &HDD9BEC, "ConnInfo", true)
+        UniStringToStreamAsync(EXEstream, &HDDA970, "NodeDB")
+        UniStringToStreamAsync(EXEstream, &HDDAB78, "GhostDB")
+        UniStringToStreamAsync(EXEstream, &HDDB024, "Msg DB")
+        UniStringToStreamAsync(EXEstream, &HDDB2D0, "Blood")
+        UniStringToStreamAsync(EXEstream, &HDDB438, "Fires")
+        UniStringToStreamAsync(EXEstream, &HDDB600, "Curse")
 
-        byt = System.Text.Encoding.Unicode.GetBytes("ConnInfo")
-        ReDim Preserve byt(&H20)
-        Await WriteBytesAsync(EXEstream, &HDD9BEC, byt)
+        'byt = System.Text.Encoding.Unicode.GetBytes("Event DB")
+        'ReDim Preserve byt(&H12)
+        UniStringToStreamAsync(EXEstream, &HDDB940, "Event DB", True)
 
-        byt = System.Text.Encoding.Unicode.GetBytes("NodeDB")
-        Await WriteBytesAsync(EXEstream, &HDDA970, byt)
+        UniStringToStreamAsync(EXEstream, &HDDBAD0, "Drift Item DB")
+                
+            UniStringToStreamAsync(EXEstream, &HDDBAEC, "Vagrant")
+            UniStringToStreamAsync(EXEstream, &HDDBBBA, "Redist", true)
+            UniStringToStreamAsync(EXEstream, &HDDBBEA, "Interval", true)
+            UniStringToStreamAsync(EXEstream, &HDDBC08, "MaxRedist", true)
+            UniStringToStreamAsync(EXEstream, &HDDBC24, "Must Arrive", true)
+            UniStringToStreamAsync(EXEstream, &HDDBC54, "EventUnavail", true)
+            UniStringToStreamAsync(EXEstream, &HDDBC7C, "Limit Level", true)
+            UniStringToStreamAsync(EXEstream, &HDDBCA6, "Inhibit", true)
+            UniStringToStreamAsync(EXEstream, &HDDBCDA, "Postpone", true)
 
-        byt = System.Text.Encoding.Unicode.GetBytes("GhostDB")
-        Await WriteBytesAsync(EXEstream, &HDDAB78, byt)
-
-        byt = System.Text.Encoding.Unicode.GetBytes("Msg DB")
-        Await WriteBytesAsync(EXEstream, &HDDB024, byt)
-
-        byt = System.Text.Encoding.Unicode.GetBytes("Blood")
-        Await WriteBytesAsync(EXEstream, &HDDB2D0, byt)
-
-        byt = System.Text.Encoding.Unicode.GetBytes("Fires")
-        Await WriteBytesAsync(EXEstream, &HDDB438, byt)
-
-        byt = System.Text.Encoding.Unicode.GetBytes("Curse")
-        Await WriteBytesAsync(EXEstream, &HDDB600, byt)
-
-        byt = System.Text.Encoding.Unicode.GetBytes("Event DB")
-        ReDim Preserve byt(&H12)
-        Await WriteBytesAsync(EXEstream, &HDDB940, byt)
-
-        byt = System.Text.Encoding.Unicode.GetBytes("Drift Item DB")
-        Await WriteBytesAsync(EXEstream, &HDDBAD0, byt)
-
-        
-            byt = System.Text.Encoding.Unicode.GetBytes("Vagrant")
-            Await WriteBytesAsync(EXEstream, &HDDBAEC, byt)
-
-            byt = System.Text.Encoding.Unicode.GetBytes("Redist")
-            ReDim Preserve byt(byt.Length+1)
-            Await WriteBytesAsync(EXEstream, &HDDBBBA, byt)
-
-            byt = System.Text.Encoding.Unicode.GetBytes("Interval")
-            ReDim Preserve byt(byt.Length+1)
-            Await WriteBytesAsync(EXEstream, &HDDBBEA, byt)
-
-            byt = System.Text.Encoding.Unicode.GetBytes("MaxRedist")
-            ReDim Preserve byt(byt.Length+1)
-            Await WriteBytesAsync(EXEstream, &HDDBC08, byt)
-
-            byt = System.Text.Encoding.Unicode.GetBytes("Must Arrive")
-            ReDim Preserve byt(byt.Length+1)
-            Await WriteBytesAsync(EXEstream, &HDDBC24, byt)
-
-            byt = System.Text.Encoding.Unicode.GetBytes("EventUnavail")
-            ReDim Preserve byt(byt.Length+1)
-            Await WriteBytesAsync(EXEstream, &HDDBC54, byt)
-        
-            byt = System.Text.Encoding.Unicode.GetBytes("Limit Level")
-            ReDim Preserve byt(byt.Length+1)
-            Await WriteBytesAsync(EXEstream, &HDDBC7C, byt)
-
-            byt = System.Text.Encoding.Unicode.GetBytes("Inhibit")
-            ReDim Preserve byt(byt.Length+1)
-            Await WriteBytesAsync(EXEstream, &HDDBCA6, byt)
-
-            byt = System.Text.Encoding.Unicode.GetBytes("Postpone")
-            ReDim Preserve byt(byt.Length+1)
-            Await WriteBytesAsync(EXEstream, &HDDBCDA, byt)
-
-        byt = System.Text.Encoding.Unicode.GetBytes("Reso DB")
-        Await WriteBytesAsync(EXEstream, &HDDBF00, byt)
-
-        byt = System.Text.Encoding.Unicode.GetBytes("NitoInvit")
-        Await WriteBytesAsync(EXEstream, &HDDE740, byt)
-
-        byt = System.Text.Encoding.Unicode.GetBytes("Coliseum")
-        ReDim Preserve byt(&H12)
-        Await WriteBytesAsync(EXEstream, &HDDEA38, byt)
+        UniStringToStreamAsync(EXEstream, &HDDBF00, "Reso DB")
+        UniStringToStreamAsync(EXEstream, &HDDE740, "NitoInvit")
+        UniStringToStreamAsync(EXEstream, &HDDEA38, "Coliseum", true)
 
     End Function
 
@@ -1441,6 +1378,29 @@ Public Class frmModPrep
             End Sub)
     End Sub
 
+    Private Async Function Int32FromStreamAsync(fs As Stream, ByVal loc As Integer) As Task(Of Integer)
+        Dim tmpInt As Integer = 0
+        Dim byt = New Byte() {0, 0, 0, 0}
+
+        fs.Position = loc
+
+        Await fs.ReadAsync(byt, 0, 4)
+
+        Await Task.Run(
+            Sub()
+                If bigEndian Then
+                    For i = 0 To 3
+                        tmpInt += Convert.ToInt32(byt(i)) * &H100 ^ (3 - i)
+                    Next
+                Else
+                    For i = 0 To 3
+                        tmpInt += Convert.ToInt32(byt(i)) * &H100 ^ i
+                    Next
+                End If
+            End Sub)
+
+        Return tmpInt
+    End Function
     Private Async Function UInt32FromStreamAsync(fs As Stream, ByVal loc As Integer) As Task(Of UInteger)
         Dim tmpUInt As UInteger = 0
         Dim byt = New Byte() {0, 0, 0, 0}
@@ -1464,45 +1424,22 @@ Public Class frmModPrep
         Return tmpUInt
     End Function
 
-    Private Async Function UpdateVisibleProgressAsync() As Task
+    Private Async Sub UniStringToStreamAsync(fs As Stream, byval loc As Integer, str As String)
+        UniStringToStreamAsync(fs, loc, str, False)
+        Await Task.Delay(1) 'Gets VS to stop warning us about this method not using Await
+    End Sub
+    Private Async Sub UniStringToStreamAsync(fs As Stream, byval loc As Integer, str As String, pad As boolean)
+        Dim byt() As Byte
+        byt = System.Text.Encoding.Unicode.GetBytes(str)
 
-        Await Task.Run(
-            Async Function()
-                If realCurrentProgress > realCurrentProgressMax Then
-                    realCurrentProgress = realCurrentProgressMax
-                End If
+        If pad Then
+            ReDim Preserve byt(byt.Length+1)
+        End If
+        
+        Await WriteBytesAsync(fs, loc, byt)
+    End Sub
 
-                If Not maxProgSnapTimer.Enabled Then
-                    Await SetMaxAsync(progCurFile, realCurrentProgressMax)
-                    Await SetValueAsync(progCurFile, realCurrentProgress)
-                End If
-
-                If realCurrentProgress >= realCurrentProgressMax Then
-                    Await SetMaxAsync(progCurFile, realCurrentProgressMax)
-                    Await SetValueAsync(progCurFile, realCurrentProgress)
-                    'Starting the timer, which will prevent these from changing (but only visibly)
-                    If maxProgSnapTimer.Enabled Then
-                        maxProgSnapTimer.Stop()
-                    End If
-                    maxProgSnapTimer.Start()
-                End If
-
-                'Don't wanna divide by zero.
-                If progCurFile.Maximum = 0 Then
-                    Await SetTextAsync(lblProgCurFile, "0%")
-                Else
-                    Await SetTextAsync(lblProgCurFile, (progCurFile.Value / progCurFile.Maximum).ToString("0%"))
-                End If
-
-                If progOperation.Maximum = 0 Then
-                    Await SetTextAsync(lblProgOperation, "0%")
-                Else
-                    Await SetTextAsync(lblProgOperation, (progOperation.Value / progOperation.Maximum).ToString("0%"))
-                End If
-            End Function)
-
-    End Function
-
+ 
     Private Async Function WriteBytesAsync(fs As FileStream, ByVal loc As Integer, ByVal byt() As Byte) As Task
         fs.Position = loc
         Await fs.WriteAsync(byt, 0, byt.Length)
@@ -1513,6 +1450,44 @@ Public Class frmModPrep
         Await file.WriteAsync(bytes, 0, bytes.Length)
         file.Dispose()
     End Function
+    Private Async Function UpdateVisibleProgressAsync() As Task
+
+        Await Task.Run(
+                Async Function()
+                    If realCurrentProgress > realCurrentProgressMax Then
+                        realCurrentProgress = realCurrentProgressMax
+                    End If
+
+                    If Not maxProgSnapTimer.Enabled Then
+                        Await SetMaxAsync(progCurFile, realCurrentProgressMax)
+                        Await SetValueAsync(progCurFile, realCurrentProgress)
+                    End If
+
+                    If realCurrentProgress >= realCurrentProgressMax Then
+                        Await SetMaxAsync(progCurFile, realCurrentProgressMax)
+                        Await SetValueAsync(progCurFile, realCurrentProgress)
+                        'Starting the timer, which will prevent these from changing (but only visibly)
+                        If maxProgSnapTimer.Enabled Then
+                            maxProgSnapTimer.Stop()
+                        End If
+                        maxProgSnapTimer.Start()
+                    End If
+
+                    'Don't wanna divide by zero.
+                    If progCurFile.Maximum = 0 Then
+                        Await SetTextAsync(lblProgCurFile, "0%")
+                    Else
+                        Await SetTextAsync(lblProgCurFile, (progCurFile.Value / progCurFile.Maximum).ToString("0%"))
+                    End If
+
+                    If progOperation.Maximum = 0 Then
+                        Await SetTextAsync(lblProgOperation, "0%")
+                    Else
+                        Await SetTextAsync(lblProgOperation, (progOperation.Value / progOperation.Maximum).ToString("0%"))
+                    End If
+                End Function)
+
+        End Function
 End Class
 
 'List of Folder Aliases
