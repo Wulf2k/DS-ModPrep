@@ -43,6 +43,7 @@ Partial Class frmModPrep
         Me.btnDeleteFRPG = New System.Windows.Forms.Button()
         Me.btnDeleteBHDs = New System.Windows.Forms.Button()
         Me.Panel1 = New System.Windows.Forms.Panel()
+        Me.Label3 = New System.Windows.Forms.Label()
         Me.Panel1.SuspendLayout
         Me.SuspendLayout
         '
@@ -174,10 +175,16 @@ Partial Class frmModPrep
         Me.Panel1.Controls.Add(Me.txtInfo)
         Me.Panel1.Name = "Panel1"
         '
+        'Label3
+        '
+        resources.ApplyResources(Me.Label3, "Label3")
+        Me.Label3.Name = "Label3"
+        '
         'frmModPrep
         '
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None
         resources.ApplyResources(Me, "$this")
+        Me.Controls.Add(Me.Label3)
         Me.Controls.Add(Me.Panel1)
         Me.Controls.Add(Me.btnDeleteBHDs)
         Me.Controls.Add(Me.btnDeleteFRPG)
@@ -225,4 +232,5 @@ End Sub
     Friend WithEvents btnDeleteFRPG As Button
     Friend WithEvents btnDeleteBHDs As Button
     Friend WithEvents Panel1 As Panel
+    Friend WithEvents Label3 As Label
 End Class
